@@ -1,12 +1,46 @@
 import numpy as np
 
+class Reservacion:
+  diasDeHospedaje = 0
+  tipoDeCuarto = 0
+  diaLlegada = 0
+  horaLLegada = 0
+  numeroDeReservacion = 0
+  cantidadDePersonas = 0
+  atendido = 0
+  hizoReservacion = 0
+  tiempoDeEspera = 0
+  
+  def __init__(self,numeroDeReserva,dias,cuarto,hora,fecha,personas,atendido,reserva,tiempo):
+    self.numeroDeReservacion = numeroDeReserva
+    self.diasDeHospedaje = dias
+    self.tipoDeCuarto = cuarto
+    self.horaLLegada = hora
+    self.diaLlegada = fecha
+    self.cantidadDePersonas = personas
+    self.atendido = atendido
+    self.hizoReservacion = reserva
+    self.tiempoDeEspera = tiempo
+
+class Cuarto:
+  numeroDeCuarto = 0
+  tipoDeCuarto = 0
+  Ocupante = Reservacion(0,0,0,0,0,0,0,0,0)
+  #booleano
+  apartado = 0
+  
+  def __init__(self,numero,tipo,aparta,huesped):
+    self.numeroDeCuarto = numero
+    self.tipoDeCuarto = tipo
+    self.apartado = aparta
+    self.Ocupante = huesped
 
 class clienteEnSpa:
-	idServicio = 0
-	tipoDeTratamiento = 0
-	duracionTratamiento = 0
-	tiempoDeEspera = 0
-	atendido = 0
+  idServicio = 0
+  tipoDeTratamiento = 0
+  duracionTratamiento = 0
+  tiempoDeEspera = 0
+  atendido = 0
 
 class prendaLavanderia:
   idLavanderia = 0
@@ -29,13 +63,13 @@ class mesaComedor:
   tiempoDeEspera = 0
 
 # variables para simulación
-diasSimulados = 365
+diasSimulados = 1
 horasDeServicio = 12
-totalDeHabitaciones = 100
+totalDeHabitaciones = 10
 habitacionesDisponibles = totalDeHabitaciones
-habitacionesIndividualesTotales = 60
-habitacionesDoblesTotales = 30
-habitacionesSuiteTotales = 10
+habitacionesIndividualesTotales = 6
+habitacionesDoblesTotales = 3
+habitacionesSuiteTotales = 1
 idReservacion = 0
 totalDeHuespedes = 0
 #lista de reservaciones
@@ -61,7 +95,6 @@ mesasRestaurant = []
 #lista de mesaComedor
 colaRestaurant = []
 personasEnColaYRestaurante = 0
-# variables para simulación
 
 #variables para costos
 costoPorNocheIndividual = 1000
@@ -95,44 +128,35 @@ balanceFinal = 0
 
 #funcion para sacar a las personas cuando termina su estancia en el hotel
 def no_mas_dias (reservacion):
-
   return reservacion.diasDeHospedaje <= 0
 
 #funcion para sacar a las personas de la cola cuando son atendidas
 def fue_atendido (reservacion):
-
   return reservacion.atendido == 1
 
 #funcion para sacar a las personas de la cola cuando pasa demasiado tiemmpo
 def demasiada_espera (reservacion):
   generarPerdida(reservacion)
-
   return reservacion.tiempoDeEspera >= 4
 
 def recibido_en_spa (cliente):
-
   return cliente.atendido == 1
 
 def espera_spa (cliente):
-  perdidasSpa(cliente);
-  
+  perdidasSpa(cliente)
   return cliente.tiempoDeEspera > 2
 
 def recibido_lavanderia (prenda):
-
   return prenda.atendido == 1
 
 def recibido_en_gym(cliente):
-
   return cliente.ejercitado == 1
 
 def espera_restaurante(mesa):
   generarPerdidaComida(mesa)
-
   return mesa.tiempoDeEspera >= 2
 
 def recibido_en_restaurante(mesa):
-
   return mesa.atendido == 1
 
 #Llegada y servicio de Valet Parking del Hotel
@@ -158,7 +182,6 @@ def simulacionValet (colaAutosValet, llegadaMomentoValet, servicioMomentoValet):
   resultado = (autosServidosValet, colaAutosValet)
 
   return resultado
-}
 
 #Evaluación de la variable aleatoria exponencial para obtener el servicio de valet
 def evaluarServicioValet (valorExponencial):
@@ -183,6 +206,11 @@ def seleccionHabitacion():
 
 #Simulación de la llegada al checkin, servicio del checkin, y asignación de habitaciones, dias de hospedaje (uniforme)
 def simulacionCheckin (tamanioColaCheckIn, llegadasCheckIn, servicioMomentoCheckIn, horaEntrada, diaEntrada):
+  #DECLARACION DE VARIABLES GLOBALES PARA SU USO
+  global habitacionesDisponibles
+  global colaCheckIn
+
+
   clientesNoServidosCheckIn = 0
   clientesServidosCheckIn = 0
   clientesNoServidosCheckIn = llegadasCheckIn - servicioMomentoCheckIn
@@ -196,23 +224,19 @@ def simulacionCheckin (tamanioColaCheckIn, llegadasCheckIn, servicioMomentoCheck
   llegadasCheckIn2 = llegadasCheckIn
 
   while(llegadasCheckIn2 > 0):
-    tiempoDeEstancia = estanciaHotel();
+    tiempoDeEstancia = estanciaHotel()
     tipoDeCuarto = evaluarTipoHabitacion(seleccionHabitacion())
     numeroDePersonas = personasPorReservacion(tipoDeCuarto)
     #IMPORTANTE PARA RESERVACION
-    #Reservacion nuevoReservacion = Reservacion(0,tiempoDeEstancia,tipoDeCuarto,horaEntrada,diaEntrada,numeroDePersonas,0,0,0);
-    #colaCheckIn.append(nuevoReservacion);
+    nuevoReservacion = Reservacion(0,tiempoDeEstancia,tipoDeCuarto,horaEntrada,diaEntrada,numeroDePersonas,0,0,0)
+    colaCheckIn.append(nuevoReservacion)
     llegadasCheckIn2 = llegadasCheckIn2 - 1
-  }
 
-  #CAMBIAR ESTO
-  std::list<Reservacion>::iterator it = colaCheckIn.begin()
   it = 0
   while (habitacionesDisponibles > 0 and clientesServidosCheckIn > 0 and (not colaCheckIn) and it != (len(colaCheckIn) - 1)):
     #INCREMENTAR it
-    nuevoReservacion = colaCheckIn[it]
-    if (nuevoReservacion.tipoDeCuarto == 1):
-      int i = 0
+    if (colaCheckIn[it].tipoDeCuarto == 1):
+      i = 0
       #BOOLEANO
       saved = 0
       #SE USA VARIABLE GLOBAL habitacionesIndividualesTotales
@@ -220,14 +244,14 @@ def simulacionCheckin (tamanioColaCheckIn, llegadasCheckIn, servicioMomentoCheck
         #SE USA VARIABLE GLOBAL habitaciones
         if(habitaciones[i].Ocupante.tipoDeCuarto == 0):
           idReservacion = idReservacion + 1
-          nuevoReservacion.numeroDeReservacion = idReservacion
-          nuevoReservacion.atendido = 1
+          colaCheckIn[it].numeroDeReservacion = idReservacion
+          colaCheckIn[it].atendido = 1
           # (*it).atendido = 1
-          habitaciones[i].Ocupante = nuevoReservacion
-          totalDeHuespedes = totalDeHuespedes + nuevoReservacion.cantidadDePersonas
+          habitaciones[i].Ocupante = colaCheckIn[it]
+          totalDeHuespedes = totalDeHuespedes + colaCheckIn[it].cantidadDePersonas
           habitacionesDisponibles = habitacionesDisponibles - 1
           #SE USAN VARIABLES GLOBALES
-          gananciasDelDiaPorCheckIn = gananciasDelDiaPorCheckIn + nuevoReservacion.diasDeHospedaje * costoPorNocheIndividual
+          gananciasDelDiaPorCheckIn = gananciasDelDiaPorCheckIn + colaCheckIn[it].diasDeHospedaje * costoPorNocheIndividual
           saved = 1
         else:
           i = i + 1
@@ -235,29 +259,29 @@ def simulacionCheckin (tamanioColaCheckIn, llegadasCheckIn, servicioMomentoCheck
       if (saved == 0):
         print("No hay lugar habitaciones individuales")
 
-    elif (nuevoReservacion.tipoDeCuarto == 2):
+    elif (colaCheckIn[it].tipoDeCuarto == 2):
       i = habitacionesIndividualesTotales
       saved = 0
       #SE USAN VARIABLES GLOBALES
       while ((not saved) and i < habitacionesIndividualesTotales + habitacionesDoblesTotales):
         if(habitaciones[i].Ocupante.tipoDeCuarto == 0):
           idReservacion = idReservacion + 1
-          nuevoReservacion.numeroDeReservacion = idReservacion
-          nuevoReservacion.atendido = 1
-          #(*it).atendido = 1;
-          habitaciones[i].Ocupante = nuevoReservacion
-          totalDeHuespedes = totalDeHuespedes + nuevoReservacion.cantidadDePersonas
+          colaCheckIn[it].numeroDeReservacion = idReservacion
+          colaCheckIn[it].atendido = 1
+          #(*it).atendido = 1
+          habitaciones[i].Ocupante = colaCheckIn[it]
+          totalDeHuespedes = totalDeHuespedes + colaCheckIn[it].cantidadDePersonas
           habitacionesDisponibles = habitacionesDisponibles - 1
           #SE USAN VARIABLES GLOBALES
-          gananciasDelDiaPorCheckIn = gananciasDelDiaPorCheckIn + nuevoReservacion.diasDeHospedaje * costoPorNocheDoble
-          saved = true
+          gananciasDelDiaPorCheckIn = gananciasDelDiaPorCheckIn + colaCheckIn[it].diasDeHospedaje * costoPorNocheDoble
+          saved = 1
         else:
           i = i + 1
 
       if (saved == 0):
         print("No hay habitaciones dobles")
 
-    elif (nuevoReservacion.tipoDeCuarto == 3):
+    elif (colaCheckIn[it].tipoDeCuarto == 3):
       #SE USAN VARIABLES GLOBALES
       i = habitacionesIndividualesTotales + habitacionesDoblesTotales
       saved = 0
@@ -265,13 +289,13 @@ def simulacionCheckin (tamanioColaCheckIn, llegadasCheckIn, servicioMomentoCheck
       while ((not saved) and i < habitacionesIndividualesTotales + habitacionesDoblesTotales + habitacionesSuiteTotales):
         if (habitaciones[i].Ocupante.tipoDeCuarto == 0):
           idReservacion = idReservacion + 1
-          nuevoReservacion.numeroDeReservacion = idReservacion
-          nuevoReservacion.atendido = 1
-          #(*it).atendido = 1;
-          habitaciones[i].Ocupante = nuevoReservacion
-          totalDeHuespedes = totalDeHuespedes + nuevoReservacion.cantidadDePersonas
+          colaCheckIn[it].numeroDeReservacion = idReservacion
+          colaCheckIn[it].atendido = 1
+          #(*it).atendido = 1
+          habitaciones[i].Ocupante = colaCheckIn[it]
+          totalDeHuespedes = totalDeHuespedes + colaCheckIn[it].cantidadDePersonas
           habitacionesDisponibles = habitacionesDisponibles - 1
-          gananciasDelDiaPorCheckIn = gananciasDelDiaPorCheckIn + nuevoReservacion.diasDeHospedaje * costoPorNocheSuite
+          gananciasDelDiaPorCheckIn = gananciasDelDiaPorCheckIn + colaCheckIn[it].diasDeHospedaje * costoPorNocheSuite
           saved = 1
         else:
           i = i + 1
@@ -280,10 +304,10 @@ def simulacionCheckin (tamanioColaCheckIn, llegadasCheckIn, servicioMomentoCheck
         print("No hay lugar suites")
 
     clientesServidosCheckIn = clientesServidosCheckIn - 1
-    it = it + 1
+    it += 1
 
-  global colaCheckin
-  colaCheckIn = [elem for elem in colaCheckin if not fue_atendido(elem)]
+  #global colaCheckIn
+  colaCheckIn = [elem for elem in colaCheckIn if not fue_atendido(elem)]
 
   return
 
@@ -333,15 +357,15 @@ def simulacionReservaciones (diaActual):
   horaLLegada = 0
 
   for i in range(reservacionesGeneradas):
-    tiempoEstancia = estanciaHotel2();
+    tiempoEstancia = estanciaHotel2()
     #SE USA VARIABLE GLOBAL diasSimulados
-    llegada = diaLlegadaHotel(diaActual,diasSimulados);
+    llegada = diaLlegadaHotel(diaActual,diasSimulados)
     tipoDeCuarto = evaluarTipoHabitacion(seleccionHabitacion())
-    horaLLegada = horaLLegadaHotel()
+    horaLlegada = horaLlegadaHotel()
     numeroDePersonas = personasPorReservacion(tipoDeCuarto)
     #IMPORTANTE PARA RESERVACION
-    # nuevaReservacion = Reservacion(0,tiempoEstancia,tipoDeCuarto,horaLLegada,llegada,numeroDePersonas,0,1,0)
-    # reservacionesFuturas.append(nuevaReservacion)
+    nuevaReservacion = Reservacion(0,tiempoEstancia,tipoDeCuarto,horaLLegada,llegada,numeroDePersonas,0,1,0)
+    reservacionesFuturas.append(nuevaReservacion)
 
   return 
 
@@ -370,8 +394,11 @@ def personasPorReservacion(tipoDeCuarto):
   return personas
 
 def generarPerdida(reservacion):
+  #DECLARACION DE VARIABLES GLOBALES PARA SU USO
+  global gananciasPerdidasDelDiaPorCheckIn
+  global clientesQueAbandondanCheckIn
+
   if (reservacion.tiempoDeEspera >= 4):
-    #SE USA VARIABLE GLOBAL gananciasPerdidasDelDiaPorCheckIn
     if(reservacion.tipoDeCuarto == 1):
       gananciasPerdidasDelDiaPorCheckIn = gananciasPerdidasDelDiaPorCheckIn + reservacion.diasDeHospedaje * costoPorNocheIndividual
     elif(reservacion.tipoDeCuarto == 2):
@@ -379,21 +406,24 @@ def generarPerdida(reservacion):
     elif(reservacion.tipoDeCuarto == 3):
       gananciasPerdidasDelDiaPorCheckIn = gananciasPerdidasDelDiaPorCheckIn + reservacion.diasDeHospedaje * costoPorNocheSuite
 
-    #SE USA VARIABLE GLOBAL clientesQueAbandondanCheckIn
-    clientesQueAbandondanCheckIn = clientesQueAbandondanCheckIn + 1
+    clientesQueAbandondanCheckIn += 1
 
   return
 
 def llegadaSpa():
   return np.random.poisson(3)
 
-def tipoServicioSpa():
+def tipoDeServicioSpa():
   return np.random.exponential(3.5)
 
 def servicioSpa():
   return np.random.exponential(4)
 
 def simulacionSpa(diaActual, horaActual):
+  #DECLARACION DE VARIABLES GLOBALES PARA SU USO
+  global colaSpa
+  global idSpa
+
   llegadasSpa = llegadaSpa()
   servidoresSpa = evaluarSpa(servicioSpa())
 
@@ -405,7 +435,7 @@ def simulacionSpa(diaActual, horaActual):
       ejemplo.tiempoDeEspera = 0
       ejemplo.atendido = 0
       ejemplo.idServicio = 0
-      cliente = ejemplo;
+      cliente = ejemplo
 
   for i in range(llegadasSpa):
     #TUPLA
@@ -428,26 +458,25 @@ def simulacionSpa(diaActual, horaActual):
     servido = 0
     while (it2 != (len(servicioDeSpa) - 1) and servido == 0):
       if(servicioDeSpa[it2].duracionTratamiento == 0):
-        idSpa = idSpa + 1
+        idSpa += 1
+        print("IT2 = ",it2)
         servicioDeSpa[it2] = colaSpa[it]
         servicioDeSpa[it2].idServicio = idSpa
         colaSpa[it].atendido = 1
         gananciasDelDiaSpa = gananciasDelDiaSpa + servicioDeSpa[it2].duracionTratamiento * costoTratamientoSpa
         servido = 1
       else:
-        it2 = it2 + 1
+        it2 += 1
 
-    it = it + 1
+    it += 1
     clientesServidosSpa = clientesServidosSpa + 1
 
-  global colaSpa
-  colaSpa = [elem for elem in colaCheckin if not recibido_en_spa(elem)]
+  colaSpa = [elem for elem in colaSpa if not recibido_en_spa(elem)]
 
   for cliente in colaSpa:
     cliente.tiempoDeEspera = cliente.tiempoDeEspera + 1
 
-  global colaSpa
-  colaSpa = [elem for elem in colaCheckin if not espera_spa(elem)]
+  colaSpa = [elem for elem in colaSpa if not espera_spa(elem)]
 
   for cliente in servicioDeSpa:
     cliente.duracionTratamiento = cliente.duracionTratamiento - 1
@@ -481,15 +510,17 @@ def evaluarSpa (variableExponencial):
   return servidores
 
 def perdidasSpa(cliente):
-  if (cliente.tiempoDeEspera >= 2)
-    gananciasPerdidasDelDiaPorSpa = gananciasPerdidasDelDiaPorSpa + cliente.duracionTratamiento * costoTratamientoSpa
+  #DECLARACION DE VARIABLES GLOBALES PARA SU USO
+  global gananciasPerdidasDelDiaPorSpa
 
+  if (cliente.tiempoDeEspera >= 2):
+    gananciasPerdidasDelDiaPorSpa = gananciasPerdidasDelDiaPorSpa + cliente.duracionTratamiento * costoTratamientoSpa
   return
 
 def llegadaLavanderia():
   return np.random.poisson(4)
 
-def tipoPrenda():
+def tipoDePrenda():
   return np.random.exponential(3.5)
 
 def lavadoOTinto():
@@ -499,6 +530,9 @@ def servicioLavanderia():
   return np.random.exponential(4)
 
 def simulacionLavanderia(diaActual, horaActual):
+  #DECLARACION DE VARIABLES GLOBALES PARA SU USO
+  global colaLavanderia
+
   llegadasLavanderia = llegadaLavanderia()
   cantidadServicio = evaluarServicioLavanderia(servicioLavanderia())
 
@@ -532,12 +566,13 @@ def simulacionLavanderia(diaActual, horaActual):
     elif (colaLavanderia[it].tipoDePrenda == 3):
       if (colaLavanderia[it].tipoDeServicio == 1):
         gananciasDelDiaLavanderia = gananciasDelDiaLavanderia + 200
-      elif ((*it).tipoDeServicio == 2):
+      elif (colaLavanderia[it].tipoDeServicio == 2):
         gananciasDelDiaLavanderia = gananciasDelDiaLavanderia + 150
 
     cantidadServicio = cantidadServicio - 1
     it = it + 1
-  colaLavanderia.remove_if(recibido_lavanderia);
+    
+  colaLavanderia = [elem for elem in colaLavanderia if not recibido_lavanderia(elem)]
 
   return
 
@@ -587,18 +622,18 @@ def servicioGym():
   return np.random.exponential(4)
 
 def simulacionGym(diaActual,horaActual):
-  int llegadasGym = llegadaGym()
-  int servidoresGym = evaluarGym(servicioGym())
+  llegadasGym = llegadaGym()
+  servidoresGym = evaluarGym(servicioGym())
 
-  for it in servicioGym:
-    if (it.duracionEntrenamiento <= 0):
-      clientazo = clienteGym()
+  for it in range(len(servicioDeGym)):
+    if (servicioDeGym[it].duracionEntrenamiento <= 0):
+      clientazo = clienteEnGym()
       clientazo.tipoDeEntrenamiento = 0
       clientazo.duracionEntrenamiento = 0
       clientazo.tiempoDeEspera = 0
       clientazo.ejercitado = 0
       #CHECAR DEEP COPY
-      it = clientazo
+      servicioGym[it] = clientazo
 
   for i in range(llegadasGym):
     #TUPLA
@@ -632,7 +667,6 @@ def simulacionGym(diaActual,horaActual):
     i += 1
     clientesServidosGym += 1
 
-  global colaGym
   colaGym = [elem for elem in colaGym if not recibido_en_gym(elem)]
 
   for cliente in colaGym:
@@ -673,10 +707,14 @@ def llegadaRestaurante():
 def tamanioMesa():
   return np.random.exponential(3.5)
 
-def tamanioOcupado():
+def tiempoOcupado():
   return np.random.exponential(3.5)
 
 def simulacionRestaurante(diaActual,horaActual):
+  #DECLARACION DE VARIABLES GLOBALES PARA SU USO
+  global colaRestaurant
+  global personasEnColaYRestaurante
+
   noLoHagas = 0
 
   if (diaActual == 0 and horaActual < 13):
@@ -686,30 +724,31 @@ def simulacionRestaurante(diaActual,horaActual):
     del colaRestaurant[:]
 
     for mesa in mesasRestaurant:
-      mesa.ocupacion = 0;
-      mesa.atendido = 0;
-      mesa.tiempoDeEspera = 0;
-      mesa.tiempoComida = 0;
+      mesa.ocupacion = 0
+      mesa.atendido = 0
+      mesa.tiempoDeEspera = 0
+      mesa.tiempoComida = 0
     
-    global personasEnColaYRestaurante
+    # global personasEnColaYRestaurante
     personasEnColaYRestaurante = 0
   elif (not noLoHagas):
 
     for mesa in mesasRestaurant:
       if (mesa.tiempoComida == 0):
-        global personasEnColaYRestaurante
+        # global personasEnColaYRestaurante
         personasEnColaYRestaurante -= mesa.ocupacion
 
-        mesa.ocupacion = 0;
-        mesa.atendido = 0;
-        mesa.tiempoDeEspera = 0;
-        mesa.tiempoComida = 0;
+        mesa.ocupacion = 0
+        mesa.atendido = 0
+        mesa.tiempoDeEspera = 0
+        mesa.tiempoComida = 0
 
     gruposQueLlegan = llegadaRestaurante()
 
     for i in range(gruposQueLlegan):
       numeroDeComensales = validarComensales(tamanioMesa())
       estanciaMesa = validarEstanciaMesa(tiempoOcupado())
+      estanciaMesa = []
       nuevaMesa = mesaComedor()
       nuevaMesa.idMesa = 0
       nuevaMesa.ocupacion = numeroDeComensales
@@ -732,15 +771,15 @@ def simulacionRestaurante(diaActual,horaActual):
             mesasRestaurant[i2].ocupacion = colaRestaurant[i].ocupacion
             mesasRestaurant[i2].tiempoDeEspera = 0
             mesasRestaurant[i2].tiempoComida = colaRestaurant[i].tiempoComida
-            colaRestaurant[i].atendido = 1;
+            colaRestaurant[i].atendido = 1
 
-            global personasEnColaYRestaurante
+            # global personasEnColaYRestaurante
             personasEnColaYRestaurante += mesasRestaurant[i2].ocupacion
             gananciasDiaRestaurante += costoComidaPersona * mesasRestaurant[i2].ocupacion
             ingresa = 1
           else:
             i2 += 1
-      else
+      else:
         ingresa = 0
         i2 = 0
         while(i2 != (len(mesasRestaurant) - 1) and ingresa == 0):
@@ -750,22 +789,22 @@ def simulacionRestaurante(diaActual,horaActual):
             mesasRestaurant[i2].tiempoComida = colaRestaurant[i].tiempoComida
             colaRestaurant[i].atendido = 1
 
-            global personasEnColaYRestaurante
+            # global personasEnColaYRestaurante
             personasEnColaYRestaurante += mesasRestaurant[i2].ocupacion
-            global gananciasDiaRestaurante
+            # global gananciasDiaRestaurante
             gananciasDiaRestaurante += costoComidaPersona * mesasRestaurant[i2].ocupacion
             ingresa = 1
           else:
             i2 += 1
       i+= 1
 
-    global colaRestaurant
+    # global colaRestaurant
     colaRestaurant = [elem for elem in colaRestaurant if not recibido_en_restaurante(elem)]
 
     for mesa in colaRestaurant:
       mesa.tiempoDeEspera += 1
 
-    global colaRestaurant
+    # global colaRestaurant
     colaRestaurant = [elem for elem in colaRestaurant if not espera_restaurante(elem)]
 
     for mesa in mesasRestaurant:
@@ -799,12 +838,15 @@ def validarEstanciaMesa (variableExponencial):
 
 #CHECAR ESTO PORQUE SE PASA UN PARAMETRO CONST
 def generarPerdidaComida(mesaComedor):
+  #DECLARACION DE VARIABLES GLOBALES PARA SU USO
+  global personasEnColaYRestaurante
+  global gananciasPerdidasDiaRestaurante
 
   if (mesaComedor.tiempoDeEspera >= 2):
-    global personasEnColaYRestaurante
+    # global personasEnColaYRestaurante
     personasEnColaYRestaurante -= mesaComedor.ocupacion
 
-    global gananciasPerdidasDiaRestaurante
+    # global gananciasPerdidasDiaRestaurante
     gananciasPerdidasDiaRestaurante += mesaComedor.ocupacion * costoComidaPersona
 
   return
@@ -819,26 +861,42 @@ def servicioCheckIn():
   return np.random.exponential(4.0)
 
 def main():
+  #DECLARACION DE LAS VARIABLES GLOBALES PARA USARLAS
+  global colaCheckIn
+  global gananciasDelDiaPorCheckIn
+  global gananciasTotalesPorCheckIn
+  global gananciasPerdidasDelDiaPorCheckIn
+  global gananciasPerdidasTotalesPorCheckIn
+  global gananciasDelDiaSpa
+  global gananciasTotalesSpa
+  global gananciasPerdidasDelDiaPorSpa
+  global gananciasPerdidasTotalesSpa
+  global gananciasDelDiaLavanderia
+  global gananciasTotalesLavanderia
+  global gananciasDiaRestaurante
+  global gananciasTotalesRestaurante
+  global gananciasPerdidasDiaRestaurante
+  global gananciasPerdidasTotalesRestaurante
+  global totalDeHuespedes
+  global habitaciones
+
   #For para llenar la lista de habitaciones y generar la cantidad de habitaciones señaladas en la variables
   for i in range(totalDeHabitaciones):
     if (i >= 0 and i < habitacionesIndividualesTotales):
-      #ASEGURAR QUE LOS CONSTRUCTORES ESTÉN HECHOS
       nuevoReservacion = Reservacion(0,0,0,0,0,0,0,0,0)
-      nuevoCuarto = Cuarto(i+1,1,false,nuevoReservacion)
-      #VARIABLE GLOBAL habitaciones
+      nuevoCuarto = Cuarto(i+1,1,0,nuevoReservacion)
       habitaciones.append(nuevoCuarto)
+
     #USO DE VARIABLES GLOBALES
     elif (i >= habitacionesIndividualesTotales and i < habitacionesIndividualesTotales + habitacionesDoblesTotales):
-      #ASEGURAR QUE LOS CONSTRUCTORES ESTÉN HECHOS
       nuevoReservacion = Reservacion(0,0,0,0,0,0,0,0,0)
-      nuevoCuarto = Cuarto(i+1,2,false,nuevoReservacion)
+      nuevoCuarto = Cuarto(i+1,2,0,nuevoReservacion)
       habitaciones.append(nuevoCuarto)
+      
     #USO DE VARIABLES GLOBALES
     elif (i >= habitacionesIndividualesTotales + habitacionesDoblesTotales and i < habitacionesIndividualesTotales + habitacionesDoblesTotales + habitacionesSuiteTotales ):
-      #ASEGURAR QUE LOS CONSTRUCTORES ESTÉN HECHOS
       nuevoReservacion = Reservacion(0,0,0,0,0,0,0,0,0)
-      nuevoCuarto = Cuarto(i+1,3,false,nuevoReservacion)
-      #VARIABLE GLOBAL habitaciones
+      nuevoCuarto = Cuarto(i+1,3,0,nuevoReservacion)
       habitaciones.append(nuevoCuarto)
 
   ejemplo = clienteEnSpa()
@@ -884,12 +942,9 @@ def main():
       #USO DE VARIABLE GLOBAL mesasRestaurant
       mesasRestaurant.append(nuevaMesa)
 
-  unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-  std::default_random_engine generator(seed);
-
   # Inicio de elementos de la simulacion del servicio del valet parking
-  llegadaMomentoValet = 0;
-  servicioMomentoValet = 0;
+  llegadaMomentoValet = 0
+  servicioMomentoValet = 0
   #TUPLA
   serviciosValetcolaValet = (0,0)
   #Final de elementos de la simulacion del servico del valet parking
@@ -905,333 +960,181 @@ def main():
   for j in range(diasSimulados):
     print("Día: ",j+1)
     #Funcion para generar un numero aleatorio de reservaciones futuras diarias
-    simulacionReservaciones(j);
+    simulacionReservaciones(j)
 
-    //Se anota en el log las revervaciones futuras que se han generado hasta ese día
-    /*logsReservaciones << "Reservaciones al día: " << j << "\n" << std::endl;
-    for (std::list<Reservacion>::iterator it = reservacionesFuturas.begin(); it != reservacionesFuturas.end(); it++)
-    {
-      logsReservaciones << "Reservacion: Dia " << (*it).diaLlegada << "--- Hora " << (*it).horaLLegada << "\n--Tipo de habitacion: " << (*it).tipoDeCuarto << "\n--Tiempo de Estancia: " << (*it).diasDeHospedaje << "\n--Personas: " << (*it).cantidadDePersonas << "\n--Reservo Lugar: " << (*it).hizoReservacion << "\n" << std::endl;
-    }
-    logsReservaciones << "-----------------------------------------------------------------------------" << std::endl;
-    logsReservaciones.close();*/
+    #For para simular cada hora
+    for i in range(24):
+      if(i >= 6 and i <= 11):
+        simulacionRestaurante(j,i)
+      if (i >= 13 and i <= 18):
+        simulacionRestaurante(j,i)
+      if (i >=19 and i <= 23):
+        simulacionRestaurante(j,i)
+      if (i >= 10 and i <= 17):
+        simulacionLavanderia(j,i)
+      if (i == 11):
+        clientesCheckout = 0
 
-    //For para simular cada hora
-    for (int i=0; i <= 23; i++)
-    {
-      if(i >= 6 && i <= 11)
-      {
-        simulacionRestaurante(j,i);
-      }
-      if (i >= 13 && i <= 18)
-      {
-        simulacionRestaurante(j,i);
-      }
-      if (i >=19 && i <= 23)
-      {
-        simulacionRestaurante(j,i);
-      }
-      if (i >= 10 && i <= 17)
-      {
-        simulacionLavanderia(j,i);
-      }
-      if (i==11)
-      {
-        //Se anota en el log como se encuentran las habitaciones antes del checkout para saber si alguien ya se tiene que ir
-        /*logsHabitaciones << "Habitaciones al iniciar el Check-Out en el dia: " << j << "\n" << std::endl;
-        for(std::vector<Cuarto>::iterator it = habitaciones.begin(); it != habitaciones.end(); it++)
-        {
-          logsHabitaciones << "Habitacion: " << (*it).numeroDeCuarto << "\n--Tipo de habitacion: " << (*it).tipoDeCuarto << "\n--Ocupante: " << (*it).Ocupante.numeroDeReservacion << "\n--Personas: " << (*it).Ocupante.cantidadDePersonas <<"\n--Tiempo de Estancia Restante: " << (*it).Ocupante.diasDeHospedaje << "\n--Reservo Lugar: " << (*it).Ocupante.hizoReservacion << "\n" << std::endl;
-        }
-        logsHabitaciones << "-----------------------------------------------------------------------------" << std::endl;*/
+        #For para revisa si el cliente hospedado ya debe irse y dejar al habitación disponible
+        for it in range(len(habitaciones)):
+          if (habitaciones[it].Ocupante.diasDeHospedaje <= 0 and habitaciones[it].Ocupante.numeroDeReservacion != 0):
+            cuarto = habitaciones[it].Ocupante.tipoDeCuarto
+            totalDeHuespedes -= habitaciones[it].Ocupante.cantidadDePersonas
+            nuevoReservacion = Reservacion(0,0,0,0,0,0,0,0,0)
+            habitaciones[it].Ocupante = nuevoReservacion
+            clientesCheckout += 1
+            habitacionesDisponibles += 1
+      if (i >= 12):
+        if (i <= 18):
+          simulacionSpa(j,i)
+        print("Hora: ", i, ":00")
 
-        int clientesCheckout = 0;
+        #Se consigue el numero de reservaciones que llegan ese momento para restarse después al servicio ya que tienen prioridad
+        reservacionesAsignadas = asignarReservaciones(j,i)
 
-        //For para revisa si el cliente hospedado ya debe irse y dejar al habitación disponible
-        for(std::vector<Cuarto>::iterator it = habitaciones.begin(); it != habitaciones.end(); it++)
-        {
-          if ((*it).Ocupante.diasDeHospedaje <= 0 && (*it).Ocupante.numeroDeReservacion != 0)
-          {
-            //std::string cuarto = ((*it).tipoDeCuarto);
-            int cuarto = ((*it).Ocupante.tipoDeCuarto);
-            totalDeHuespedes -= (*it).Ocupante.cantidadDePersonas;
-            Reservacion nuevoReservacion = Reservacion(0,0,0,0,0,0,0,0,0);
-            (*it).Ocupante = nuevoReservacion;
-            //clientesHospedados.erase(it);
-            clientesCheckout++;
-            habitacionesDisponibles++;
-          }
-        }
+        #Inicio Servicio de Valet
+        llegadaMomentoValet = llegadaValet() # Variable aleatoria para generar clientes llegan al valet
+        servicioMomentoValet = evaluarServicioValet(servicioValet()) # Variable aleatoria para generar cuantos servidores hay en el valet
+        serviciosValetcolaValet = simulacionValet(serviciosValetcolaValet[1],llegadaMomentoValet,servicioMomentoValet)
+        #Fin Servicio de Valet
 
-        //Se anota en el log de habitaicones como queda al finalizar el checkout e iniciar el checkin para revisar que se hayan ido todos
-        /*logsHabitaciones << "Habitaciones al finalizar el Check-Out e iniciar el CheckIn en el dia: " << j << "\n" << std::endl;
-        for(std::vector<Cuarto>::iterator it = habitaciones.begin(); it != habitaciones.end(); it++)
-        {
-          logsHabitaciones << "Habitacion: " << (*it).numeroDeCuarto << "\n--Tipo de habitacion: " << (*it).tipoDeCuarto << "\n--Ocupante: " << (*it).Ocupante.numeroDeReservacion << "\n--Personas: " << (*it).Ocupante.cantidadDePersonas << "\n--Tiempo de Estancia Restante: " << (*it).Ocupante.diasDeHospedaje << "\n--Reservo Lugar: " << (*it).Ocupante.hizoReservacion << "\n" << std::endl;
-        }
-        logsHabitaciones << "-----------------------------------------------------------------------------" << std::endl;
+        #Clientes que entran al hotel
+        clientesEntrantes = serviciosValetcolaValet[0]
 
-        logsColaCheckIn << "Cola del CheckIn al finalizar el Check-Out e iniciar el CheckIn: " << j << "\n" << std::endl;
-        for (std::list<Reservacion>::iterator it = colaCheckIn.begin(); it != colaCheckIn.end(); it++)
-        {
-          logsColaCheckIn << "Reservacion: Dia " << (*it).diaLlegada << "--- Hora " << (*it).horaLLegada << "\n--Tipo de habitacion: " << (*it).tipoDeCuarto << "\n--Personas: " << (*it).cantidadDePersonas << "\n--Reservo Lugar: " << (*it).hizoReservacion << "\n" << std::endl;
-        }
-        logsColaCheckIn << "-----------------------------------------------------------------------------" << std::endl;*/
+        #Se restan las reservaciones a los clientes entrantes par adarles prioridad a estso y después atender a los que no tienen reservación
+        clientesEntrantes = clientesEntrantes - reservacionesAsignadas
 
-        //std::cout << "Hora del Checkout, abandonan el hotel: " << clientesCheckout << " personas" << std::endl;
-      }
-      if (i >= 12)
-      {
-        if (i <= 18)
-        {
-          simulacionSpa(j,i);
-        }
-        std::cout << "Hora: " << i <<":00" << std::endl;
+        #Inicio Servicio de CheckIn
+        servicioMomentoCheckIn = evaluarServicioCheckIn(servicioCheckIn()) #Variable aleatoria para generar cuantos servidores hay en el checkin
+        simulacionCheckin(len(colaCheckIn),clientesEntrantes,servicioMomentoCheckIn,i,j)
+        #Fin Servicio de CheckIn
+      
+      for reservacion in colaCheckIn:
+        reservacion.tiempoDeEspera += 1
+        
+      # global colaCheckIn
+      colaCheckIn = [elem for elem in colaCheckIn if not demasiada_espera(elem)]
 
-        //Se consigue el numero de reservaciones que llegan ese momento para restarse después al servicio ya que tienen prioridad
-        int reservacionesAsignadas = asignarReservaciones(j,i);
+    #Última oportunidad de registrar a los clientes
+    if (not colaCheckIn):
+      for it in range(len(colaCheckIn)):
+        #CHECAR DEEP COPY
+        nuevoReservacion = colaCheckIn[it]
+        if (nuevoReservacion.tipoDeCuarto == 1):
+          i = 0
+          saved = 0
+          #USO DE VARIABLE GLOBAL habitacionesIndividualesTotales
+          while (not saved and i < habitacionesIndividualesTotales):
+            if (habitaciones[i].Ocupante.tipoDeCuarto == 0):
+              idReservacion += 1
+              nuevoReservacion.numeroDeReservacion = idReservacion
+              nuevoReservacion.atendido = 1
+              colaCheckIn[it].atendido = 1
+              habitaciones[i].Ocupante = nuevoReservacion
+              #USO DE VARIABLE GLOBAL totalDeHuespedes
+              totalDeHuespedes += nuevoReservacion.cantidadDePersonas
+              #USO DE VARIABLE GLOBAL habitacionesDisponibles
+              habitacionesDisponibles -= 1
+              #USO DE VARIABLES GLOBALES
+              gananciasDelDiaPorCheckIn += nuevoReservacion.diasDeHospedaje * costoPorNocheIndividual
+              saved = 1
+            else:
+              i += 1
+          if (saved == 0):
+            print("No hay habitaciones individuales")
+        elif (nuevoReservacion.tipoDeCuarto == 2):
+          #USO DE VARIABLE GLOBAL habitacionesIndividualesTotales
+          i = habitacionesIndividualesTotales
+          saved = 0
+          #USO DE VARIABLES GLOBALES
+          while (not saved and i < habitacionesIndividualesTotales + habitacionesDoblesTotales):
+            if (habitaciones[i].Ocupante.tipoDeCuarto == 0):
+              idReservacion += 1
+              nuevoReservacion.numeroDeReservacion = idReservacion
+              nuevoReservacion.atendido = 1
+              colaCheckIn[it].atendido = 1
+              habitaciones[i].Ocupante = nuevoReservacion
+              #USO DE VARIABLE GLOBAL totalDeHuespedes
+              totalDeHuespedes += nuevoReservacion.cantidadDePersonas
+              #USO DE VARIABLE GLOBAL habitacionesDisponibles
+              habitacionesDisponibles -= 1
+              #USO DE VARIABLE GLOBAL gananciasDelDiaPorCheckIn
+              gananciasDelDiaPorCheckIn += nuevoReservacion.diasDeHospedaje * costoPorNocheDoble
+              saved = 1
+            else:
+              i += 1
+          if (saved == 0):
+            print("No hay habitaciones dobles")
+        elif (nuevoReservacion.tipoDeCuarto == 3):
+          #USO DE VARIABLES GLOBALES
+          i = habitacionesIndividualesTotales + habitacionesDoblesTotales
+          saved = 0
+          while (not saved and i < habitacionesIndividualesTotales + habitacionesDoblesTotales + habitacionesSuiteTotales):
+            if(habitaciones[i].Ocupante.tipoDeCuarto == 0):
+              idReservacion += 1
+              nuevoReservacion.numeroDeReservacion = idReservacion
+              nuevoReservacion.atendido = 1
+              colaCheckIn[it].atendido = 1
+              habitaciones[i].Ocupante = nuevoReservacion
+              totalDeHuespedes += nuevoReservacion.cantidadDePersonas
+              habitacionesDisponibles -= 1
+              gananciasDelDiaPorCheckIn += nuevoReservacion.diasDeHospedaje * costoPorNocheSuite
+              saved = 1
+            else:
+              i += 1
+          if (saved == 0):
+            print("No hay suites")
 
-        //Inicio Servicio de Valet
-        llegadaMomentoValet = llegadaValet(generator); // Variable aleatoria para generar clientes llegan al valet
-        servicioMomentoValet = evaluarServicioValet(servicioValet(generator)); // Variable aleatoria para generar cuantos servidores hay en el valet
-        serviciosValetcolaValet = simulacionValet(serviciosValetcolaValet.second,llegadaMomentoValet,servicioMomentoValet);
-        //Fin Servicio de Valet
+    colaCheckIn = [elem for elem in colaCheckIn if not fue_atendido(elem)]
 
-        //Clientes que entran al hotel
-        clientesEntrantes = serviciosValetcolaValet.first;
+    #Se vacía la cola al finalizar el día porque no se pueden quedar ahí nada más los clientes
+    colaCheckIn = []
 
-        //Se restan las reservaciones a los clientes entrantes par adarles prioridad a estso y después atender a los que no tienen reservación
-        clientesEntrantes = clientesEntrantes - reservacionesAsignadas;
+    #Se le resta la noche a los clientes al terminar el día para que después se revise en el checkout
+    for it in range(len(habitaciones)):
+      habitaciones[it].Ocupante.diasDeHospedaje -= 1
 
-        //Inicio Servicio de CheckIn
-        servicioMomentoCheckIn = evaluarServicioCheckIn(servicioCheckIn(generator)); // Variable aleatoria para generar cuantos servidores hay en el checkin
-        simulacionCheckin(colaCheckIn.size(),clientesEntrantes,servicioMomentoCheckIn,i,j);
-        //Fin Servicio de CheckIn
-      }
-      for (std::list<Reservacion>::iterator it = colaCheckIn.begin(); it != colaCheckIn.end(); it++)
-      {
-        (*it).tiempoDeEspera++;
-      }
-      colaCheckIn.remove_if(demasiada_espera);
-    }
+    #Escritura en pantalla
+    print("Finanzas del Día: ",j)
+    print("Ganancias del Día Por CheckIn: ",gananciasDelDiaPorCheckIn)
+    gananciasTotalesPorCheckIn += gananciasDelDiaPorCheckIn
+    gananciasDelDiaPorCheckIn = 0
+    print("Ganancias Perdidas del Día Por CheckIn: ",gananciasPerdidasDelDiaPorCheckIn)
+    gananciasPerdidasTotalesPorCheckIn += gananciasPerdidasDelDiaPorCheckIn
+    gananciasPerdidasDelDiaPorCheckIn = 0
+    print("Ganancias del Día por Spa: ", gananciasDelDiaSpa)
+    gananciasTotalesSpa += gananciasDelDiaSpa
+    gananciasDelDiaSpa = 0
+    print("Ganancias Perdidas del Día por Spa: ",gananciasPerdidasDelDiaPorSpa)
+    gananciasPerdidasTotalesSpa += gananciasPerdidasDelDiaPorSpa
+    gananciasPerdidasDelDiaPorSpa = 0
+    print("Ganancias del Día por Lavanderia: ",gananciasDelDiaLavanderia)
+    gananciasTotalesLavanderia += gananciasDelDiaLavanderia
+    gananciasDelDiaLavanderia = 0
+    print("Ganancias del Día por Restaurante: ",gananciasDiaRestaurante)
+    gananciasTotalesRestaurante += gananciasDiaRestaurante
+    gananciasDiaRestaurante = 0
+    print("Ganancias Perdidas del Día por Restaurante: ",gananciasPerdidasDiaRestaurante)
+    gananciasPerdidasTotalesRestaurante += gananciasPerdidasDiaRestaurante
+    gananciasPerdidasDiaRestaurante = 0
+    print("-----------------------------------------------------------------------------")
 
-    //Se anota en los logs de habitaciones como quedan al finalizar el checkin del día
-    /*logsHabitaciones << "Habitaciones al finalizar el Check-In en el dia: " << j << "\n" << std::endl;
-    for(std::vector<Cuarto>::iterator it = habitaciones.begin(); it != habitaciones.end(); it++)
-    {
-      logsHabitaciones << "Habitacion: " << (*it).numeroDeCuarto << "\n--Tipo de habitacion: " << (*it).tipoDeCuarto << "\n--Ocupante: " << (*it).Ocupante.numeroDeReservacion << "\n--Tiempo de Estancia Restante: " << (*it).Ocupante.diasDeHospedaje << "\n--Personas: " << (*it).Ocupante.cantidadDePersonas << "\n--Reservo Lugar: " << (*it).Ocupante.hizoReservacion << "\n" << std::endl;
-    }
-    logsHabitaciones << "-----------------------------------------------------------------------------" << std::endl;
-    logsHabitaciones.close();
+  gananciasTotales = gananciasTotalesPorCheckIn + gananciasTotalesSpa + gananciasTotalesLavanderia + gananciasTotalesRestaurante
+  gananciasPerdidasTotales = gananciasPerdidasTotalesPorCheckIn + gananciasPerdidasTotalesSpa + gananciasPerdidasTotalesRestaurante
 
-    //Clientes que tienen una última oportunidad de entrar al hotel
-    logsColaCheckIn << "Cola del CheckIn justo antes de finalizar el Check-In en el día: " << j << "\n" << std::endl;
-    for (std::list<Reservacion>::iterator it = colaCheckIn.begin(); it != colaCheckIn.end(); it++)
-    {
-      logsColaCheckIn << "Reservacion: Dia " << (*it).diaLlegada << "--- Hora " << (*it).horaLLegada << "\n--Tipo de habitacion: " << (*it).tipoDeCuarto << "\n--Personas: " << (*it).cantidadDePersonas << "\n--Reservo Lugar: " << (*it).hizoReservacion << "\n--Espera: " << (*it).tiempoDeEspera << "\n" << std::endl;
-    }
-    logsColaCheckIn << "-----------------------------------------------------------------------------" << std::endl;*/
-
-    //Última oportunidad de registrar a los clientes
-    if(!colaCheckIn.empty())
-    {
-      for (std::list<Reservacion>::iterator it = colaCheckIn.begin(); it != colaCheckIn.end(); it++)
-      {
-        Reservacion nuevoReservacion = (*it);
-        if (nuevoReservacion.tipoDeCuarto == 1)
-        {
-          int i = 0;
-          bool saved = false;
-          while (!saved && i < habitacionesIndividualesTotales)
-          {
-            if(habitaciones[i].Ocupante.tipoDeCuarto == 0)
-            {
-              idReservacion++;
-              nuevoReservacion.numeroDeReservacion = idReservacion;
-              nuevoReservacion.atendido = 1;
-              (*it).atendido = 1;
-              habitaciones[i].Ocupante = nuevoReservacion;
-              totalDeHuespedes += nuevoReservacion.cantidadDePersonas;
-              habitacionesDisponibles--;
-              gananciasDelDiaPorCheckIn += nuevoReservacion.diasDeHospedaje * costoPorNocheIndividual;
-              saved = true;
-            }
-            else
-            {
-              i++;
-            }
-          }
-          if (saved == false)
-          {
-            std::cout << "No hay habitaciones individuales" << std::endl;
-          }
-        }
-        else if (nuevoReservacion.tipoDeCuarto == 2)
-        {
-          int i = habitacionesIndividualesTotales;
-          bool saved = false;
-          while (!saved && i < habitacionesIndividualesTotales+habitacionesDoblesTotales)
-          {
-            if(habitaciones[i].Ocupante.tipoDeCuarto == 0)
-            {
-              idReservacion++;
-              nuevoReservacion.numeroDeReservacion = idReservacion;
-              nuevoReservacion.atendido = 1;
-              (*it).atendido = 1;
-              habitaciones[i].Ocupante = nuevoReservacion;
-              totalDeHuespedes += nuevoReservacion.cantidadDePersonas;
-              habitacionesDisponibles--;
-              gananciasDelDiaPorCheckIn += nuevoReservacion.diasDeHospedaje * costoPorNocheDoble;
-              saved = true;
-            }
-            else
-            {
-              i++;
-            }
-          }
-          if (saved == false)
-          {
-            std::cout << "No hay habitaicones dobles" << std::endl;
-          }
-        }
-        else if (nuevoReservacion.tipoDeCuarto == 3)
-        {
-          int i = habitacionesIndividualesTotales+habitacionesDoblesTotales;
-          bool saved = false;
-          while (!saved && i < habitacionesIndividualesTotales+habitacionesDoblesTotales+habitacionesSuiteTotales)
-          {
-            if(habitaciones[i].Ocupante.tipoDeCuarto == 0)
-            {
-              idReservacion++;
-              nuevoReservacion.numeroDeReservacion = idReservacion;
-              nuevoReservacion.atendido = 1;
-              (*it).atendido = 1;
-              habitaciones[i].Ocupante = nuevoReservacion;
-              totalDeHuespedes += nuevoReservacion.cantidadDePersonas;
-              habitacionesDisponibles--;
-              gananciasDelDiaPorCheckIn += nuevoReservacion.diasDeHospedaje * costoPorNocheSuite;
-              saved = true;
-            }
-            else
-            {
-              i++;
-            }
-          }
-          if (saved == false)
-          {
-            std::cout << "No hay suites" << std::endl;
-          }
-        }
-      }
-    }
-
-    colaCheckIn.remove_if(fue_atendido);
-
-    //Se guarda en el log los clientes que se perdieron por llegar tarde
-    /*logsColaCheckIn << "Cola del CheckIn al finalizar el Check-In en el día (Clientes de media noche): " << j << "\n" << std::endl;
-    for (std::list<Reservacion>::iterator it = colaCheckIn.begin(); it != colaCheckIn.end(); it++)
-    {
-      logsColaCheckIn << "Reservacion: Dia " << (*it).diaLlegada << "--- Hora " << (*it).horaLLegada << "\n--Tipo de habitacion: " << (*it).tipoDeCuarto << "\n--Personas: " << (*it).cantidadDePersonas << "\n--Reservo Lugar: " << (*it).hizoReservacion << "\n--Espera: " << (*it).tiempoDeEspera << "\n" << std::endl;
-    }
-    logsColaCheckIn << "-----------------------------------------------------------------------------" << std::endl;
-    logsColaCheckIn.close();*/
-
-    //Se vacía la cola al finalizar el día porque no se pueden quedar ahí nada más los clientes
-    colaCheckIn.clear();
-
-    //Se le resta la noche a los clientes al terminar el día para que después se revise en el checkout
-    for(std::vector<Cuarto>::iterator it = habitaciones.begin(); it != habitaciones.end(); it++)
-    {
-      (*it).Ocupante.diasDeHospedaje--;
-    }
-
-    //Escritura en Logs
-    /*logFinanciero << "Finanzas del Día: " << j << std::endl;
-    logFinanciero << "Ganancias del Día Por CheckIn: " << gananciasDelDiaPorCheckIn << std::endl;
-    gananciasTotalesPorCheckIn += gananciasDelDiaPorCheckIn;
-    gananciasDelDiaPorCheckIn = 0;
-    logFinanciero << "Ganancias Perdidas del Día Por CheckIn: " << gananciasPerdidasDelDiaPorCheckIn << std::endl;
-    gananciasPerdidasTotalesPorCheckIn += gananciasPerdidasDelDiaPorCheckIn;
-    gananciasPerdidasDelDiaPorCheckIn = 0;
-    logFinanciero << "Ganancias del Día por Spa: " << gananciasDelDiaSpa << std::endl;
-    gananciasTotalesSpa += gananciasDelDiaSpa;
-    gananciasDelDiaSpa = 0;
-    logFinanciero << "Ganancias Perdidas del Día por Spa: " << gananciasPerdidasDelDiaPorSpa << std::endl;
-    gananciasPerdidasTotalesSpa += gananciasPerdidasDelDiaPorSpa;
-    gananciasPerdidasDelDiaPorSpa = 0;
-    logFinanciero << "Ganancias del Día por Lavanderia: " << gananciasDelDiaLavanderia << std::endl;
-    gananciasTotalesLavanderia += gananciasDelDiaLavanderia;
-    gananciasDelDiaLavanderia = 0;
-    logFinanciero << "Ganancias del Día por Restaurante: " << gananciasDiaRestaurante << std::endl;
-    gananciasTotalesRestaurante += gananciasDiaRestaurante;
-    gananciasDiaRestaurante = 0;
-    logFinanciero << "Ganancias Perdidas del Día por Restaurante: " << gananciasPerdidasDiaRestaurante << std::endl;
-    gananciasPerdidasTotalesRestaurante += gananciasPerdidasDiaRestaurante;
-    gananciasPerdidasDiaRestaurante = 0;
-    logFinanciero << "-----------------------------------------------------------------------------" << std::endl;
-    logSpa.close();
-    logLavanderia.close();
-    logGym.close();
-    logRestaurante.close();*/
-
-    //Escritura en pantalla
-    std::cout << "Finanzas del Día: " << j << std::endl;
-    std::cout << "Ganancias del Día Por CheckIn: " << gananciasDelDiaPorCheckIn << std::endl;
-    gananciasTotalesPorCheckIn += gananciasDelDiaPorCheckIn;
-    gananciasDelDiaPorCheckIn = 0;
-    std::cout << "Ganancias Perdidas del Día Por CheckIn: " << gananciasPerdidasDelDiaPorCheckIn << std::endl;
-    gananciasPerdidasTotalesPorCheckIn += gananciasPerdidasDelDiaPorCheckIn;
-    gananciasPerdidasDelDiaPorCheckIn = 0;
-    std::cout << "Ganancias del Día por Spa: " << gananciasDelDiaSpa << std::endl;
-    gananciasTotalesSpa += gananciasDelDiaSpa;
-    gananciasDelDiaSpa = 0;
-    std::cout << "Ganancias Perdidas del Día por Spa: " << gananciasPerdidasDelDiaPorSpa << std::endl;
-    gananciasPerdidasTotalesSpa += gananciasPerdidasDelDiaPorSpa;
-    gananciasPerdidasDelDiaPorSpa = 0;
-    std::cout << "Ganancias del Día por Lavanderia: " << gananciasDelDiaLavanderia << std::endl;
-    gananciasTotalesLavanderia += gananciasDelDiaLavanderia;
-    gananciasDelDiaLavanderia = 0;
-    std::cout << "Ganancias del Día por Restaurante: " << gananciasDiaRestaurante << std::endl;
-    gananciasTotalesRestaurante += gananciasDiaRestaurante;
-    gananciasDiaRestaurante = 0;
-    std::cout << "Ganancias Perdidas del Día por Restaurante: " << gananciasPerdidasDiaRestaurante << std::endl;
-    gananciasPerdidasTotalesRestaurante += gananciasPerdidasDiaRestaurante;
-    gananciasPerdidasDiaRestaurante = 0;
-    std::cout << "-----------------------------------------------------------------------------" << std::endl;
-
-  }
-  gananciasTotales = gananciasTotalesPorCheckIn + gananciasTotalesSpa + gananciasTotalesLavanderia + gananciasTotalesRestaurante;
-  gananciasPerdidasTotales = gananciasPerdidasTotalesPorCheckIn + gananciasPerdidasTotalesSpa + gananciasPerdidasTotalesRestaurante;
-
-  //Escritura en Logs
-  /*logFinanciero << "-----------------------------------------------------------------------------" << std::endl;
-  logFinanciero << "Ganancias Totales por CheckIn: " << gananciasTotalesPorCheckIn << std::endl;
-  logFinanciero << "Ganancias Perdidas Totales por CheckIn: " << gananciasPerdidasTotalesPorCheckIn << std::endl;
-  logFinanciero << "Ganancias Totales por Spa: " << gananciasTotalesSpa << std::endl;
-  logFinanciero << "Ganancias Perdidas Totales por Spa: " << gananciasPerdidasTotalesSpa << std::endl;
-  logFinanciero << "Ganancias Totales por Lavanderia: " << gananciasTotalesLavanderia << std::endl;
-  logFinanciero << "Ganancias Totales por Restaurante: " << gananciasTotalesRestaurante << std::endl;
-  logFinanciero << "Ganancias Perdidas Totales por Restaurante: " << gananciasPerdidasTotalesRestaurante << std::endl;
-  logFinanciero << "-----------------------------------------------------------------------------" << std::endl;
-  logFinanciero << "Ganancias Totales: " << gananciasTotales << std::endl;
-  logFinanciero << "Ganancias Perdidas Totales: " << gananciasPerdidasTotales << std::endl;
-  std::cout << totalDeHuespedes << '\n';
-  logFinanciero.close();*/
-
-  //Escritura en pantalla
-  std::cout << "-----------------------------------------------------------------------------" << std::endl;
-  std::cout << "Ganancias Totales por CheckIn: " << gananciasTotalesPorCheckIn << std::endl;
-  std::cout << "Ganancias Perdidas Totales por CheckIn: " << gananciasPerdidasTotalesPorCheckIn << std::endl;
-  std::cout << "Ganancias Totales por Spa: " << gananciasTotalesSpa << std::endl;
-  std::cout << "Ganancias Perdidas Totales por Spa: " << gananciasPerdidasTotalesSpa << std::endl;
-  std::cout << "Ganancias Totales por Lavanderia: " << gananciasTotalesLavanderia << std::endl;
-  std::cout << "Ganancias Totales por Restaurante: " << gananciasTotalesRestaurante << std::endl;
-  std::cout << "Ganancias Perdidas Totales por Restaurante: " << gananciasPerdidasTotalesRestaurante << std::endl;
-  std::cout << "-----------------------------------------------------------------------------" << std::endl;
-  std::cout << "Ganancias Totales: " << gananciasTotales << std::endl;
-  std::cout << "Ganancias Perdidas Totales: " << gananciasPerdidasTotales << std::endl;
-  std::cout << totalDeHuespedes << '\n';
-}
+  #Escritura en pantalla
+  print("-----------------------------------------------------------------------------")
+  print("Ganancias Totales por CheckIn: ",gananciasTotalesPorCheckIn)
+  print("Ganancias Perdidas Totales por CheckIn: ",gananciasPerdidasTotalesPorCheckIn)
+  print("Ganancias Totales por Spa: ",gananciasTotalesSpa)
+  print("Ganancias Perdidas Totales por Spa: ",gananciasPerdidasTotalesSpa)
+  print("Ganancias Totales por Lavanderia: ",gananciasTotalesLavanderia)
+  print("Ganancias Totales por Restaurante: ",gananciasTotalesRestaurante)
+  print("Ganancias Perdidas Totales por Restaurante: ",gananciasPerdidasTotalesRestaurante)
+  print("-----------------------------------------------------------------------------")
+  print("Ganancias Totales: ",gananciasTotales)
+  print("Ganancias Perdidas Totales: ",gananciasPerdidasTotales)
+  print(totalDeHuespedes)
 #FIN DEL MAIN
 
 if __name__ == "__main__":
