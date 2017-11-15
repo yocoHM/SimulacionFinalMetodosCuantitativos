@@ -135,453 +135,6 @@ def recibido_en_restaurante(mesa):
 
   return mesa.atendido == 1
 
-int main()
-{
-  //For para llenar la lista de habitaciones y generar la cantidad de habitaciones señaladas en la variables
-  for (int i=0; i < totalDeHabitaciones; i++)
-  {
-    if (i >= 0 && i < habitacionesIndividualesTotales)
-    {
-      Reservacion nuevoReservacion = Reservacion(0,0,0,0,0,0,0,0,0);
-      Cuarto nuevoCuarto = Cuarto(i+1,1,false,nuevoReservacion);
-      habitaciones.push_back(nuevoCuarto);
-    }
-    else if (i >= habitacionesIndividualesTotales && i < habitacionesIndividualesTotales+habitacionesDoblesTotales)
-    {
-      Reservacion nuevoReservacion = Reservacion(0,0,0,0,0,0,0,0,0);
-      Cuarto nuevoCuarto = Cuarto(i+1,2,false,nuevoReservacion);
-      habitaciones.push_back(nuevoCuarto);
-    }
-    else if (i >= habitacionesIndividualesTotales+habitacionesDoblesTotales && i < habitacionesIndividualesTotales+habitacionesDoblesTotales+habitacionesSuiteTotales )
-    {
-      Reservacion nuevoReservacion = Reservacion(0,0,0,0,0,0,0,0,0);
-      Cuarto nuevoCuarto = Cuarto(i+1,3,false,nuevoReservacion);
-      habitaciones.push_back(nuevoCuarto);
-    }
-  }
-
-  clienteEnSpa ejemplo;
-  ejemplo.tipoDeTratamiento = 0;
-  ejemplo.duracionTratamiento = 0;
-  ejemplo.tiempoDeEspera = 0;
-  ejemplo.atendido = 0;
-  ejemplo.idServicio = 0;
-
-  for (int i=0; i<5; i++)
-  {
-    servicioDeSpa.push_back(ejemplo);
-  }
-
-  clienteEnGym clientazo;
-  clientazo.tipoDeEntrenamiento = 0;
-  clientazo.duracionEntrenamiento = 0;
-  clientazo.tiempoDeEspera = 0;
-  clientazo.ejercitado = 0;
-
-  for(int i=0; i<5; i++)
-  {
-    servicioDeGym.push_back(clientazo);
-  }
-
-  for (int i=0; i<30;i++)
-  {
-    if (i>0 && i<20)
-    {
-      mesaComedor nuevaMesa;
-      nuevaMesa.idMesa = i;
-      nuevaMesa.capacidad = 2;
-      nuevaMesa.ocupacion = 0;
-      nuevaMesa.atendido = 0;
-      nuevaMesa.tiempoDeEspera = 0;
-      nuevaMesa.tiempoComida = 0;
-      mesasRestaurant.push_back(nuevaMesa);
-    }
-    else if (i >=20 && i <= 29)
-    {
-      mesaComedor nuevaMesa;
-      nuevaMesa.idMesa = i;
-      nuevaMesa.capacidad = 4;
-      nuevaMesa.ocupacion = 0;
-      nuevaMesa.atendido = 0;
-      nuevaMesa.tiempoDeEspera = 0;
-      nuevaMesa.tiempoComida = 0;
-      mesasRestaurant.push_back(nuevaMesa);
-    }
-  }
-
-  unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-  std::default_random_engine generator(seed);
-
-  // Inicio de elementos de la simulacion del servicio del valet parking
-  std::poisson_distribution<int> llegadaValet(10);
-  std::exponential_distribution<float> servicioValet(4);
-  int llegadaMomentoValet = 0;
-  int servicioMomentoValet = 0;
-  std::pair<int,int> serviciosValetcolaValet (0,0);
-  // Final de elementos de la simulacion del servico del valet parking
-
-  // Inicio de elementos de la simulacion del check-in del Hotel
-  int clientesEntrantes = 0;
-  std::exponential_distribution<float> servicioCheckIn(4);
-  int servicioMomentoCheckIn = 0;
-  int cuartosDisponibles = totalDeHabitaciones;
-  // Final de elementos de la simulacion del check-in del Hotel
-
-  //logFinanciero.open("logFinanciero.txt");
-
-  //For para simular cada día
-  for (int j=0; j <= diasSimulados; j++)
-  {
-    //Inicia sección para generar los logs
-    /*std::string nombreArchivo = "logsHabitaciones" + std::to_string(j) +".txt";
-    std::string nombreArchivo2 = "logsColaCheckIn" + std::to_string(j) +".txt";
-    std::string nombreArchivo3 = "logsReservaciones" + std::to_string(j) +".txt";
-    std::string nombreArchivo4 = "logsSinReservaciones" + std::to_string(j) +".txt";
-    std::string nombreArchivo5 = "logSpa" + std::to_string(j) + ".txt";
-    std::string nombreArchivo6 = "logLavanderia" + std::to_string(j) + ".txt";
-    std::string nombreArchivo7 = "logGym" + std::to_string(j) + ".txt";
-    std::string nombreArchivo8 = "logRestaurante" + std::to_string(j) + ".txt";
-    logsHabitaciones.open(nombreArchivo);
-    logsColaCheckIn.open(nombreArchivo2);
-    logsReservaciones.open(nombreArchivo3);
-    logsSinReservacion.open(nombreArchivo4);
-    logSpa.open(nombreArchivo5);
-    logLavanderia.open(nombreArchivo6);
-    logGym.open(nombreArchivo7);
-    logRestaurante.open(nombreArchivo8);*/
-    //Termina sección para generar los logs
-
-    std::cout << "Día: " << j+1 << std::endl;
-
-    //Funcion para generar un numero aleatorio de reservaciones futuras diarias
-    simulacionReservaciones(j);
-
-    //Se anota en el log las revervaciones futuras que se han generado hasta ese día
-    /*logsReservaciones << "Reservaciones al día: " << j << "\n" << std::endl;
-    for (std::list<Reservacion>::iterator it = reservacionesFuturas.begin(); it != reservacionesFuturas.end(); it++)
-    {
-      logsReservaciones << "Reservacion: Dia " << (*it).diaLlegada << "--- Hora " << (*it).horaLLegada << "\n--Tipo de habitacion: " << (*it).tipoDeCuarto << "\n--Tiempo de Estancia: " << (*it).diasDeHospedaje << "\n--Personas: " << (*it).cantidadDePersonas << "\n--Reservo Lugar: " << (*it).hizoReservacion << "\n" << std::endl;
-    }
-    logsReservaciones << "-----------------------------------------------------------------------------" << std::endl;
-    logsReservaciones.close();*/
-
-    //For para simular cada hora
-    for (int i=0; i <= 23; i++)
-    {
-      if(i >= 6 && i <= 11)
-      {
-        simulacionRestaurante(j,i);
-      }
-      if (i >= 13 && i <= 18)
-      {
-        simulacionRestaurante(j,i);
-      }
-      if (i >=19 && i <= 23)
-      {
-        simulacionRestaurante(j,i);
-      }
-      if (i >= 10 && i <= 17)
-      {
-        simulacionLavanderia(j,i);
-      }
-      if (i==11)
-      {
-        //Se anota en el log como se encuentran las habitaciones antes del checkout para saber si alguien ya se tiene que ir
-        /*logsHabitaciones << "Habitaciones al iniciar el Check-Out en el dia: " << j << "\n" << std::endl;
-        for(std::vector<Cuarto>::iterator it = habitaciones.begin(); it != habitaciones.end(); it++)
-        {
-          logsHabitaciones << "Habitacion: " << (*it).numeroDeCuarto << "\n--Tipo de habitacion: " << (*it).tipoDeCuarto << "\n--Ocupante: " << (*it).Ocupante.numeroDeReservacion << "\n--Personas: " << (*it).Ocupante.cantidadDePersonas <<"\n--Tiempo de Estancia Restante: " << (*it).Ocupante.diasDeHospedaje << "\n--Reservo Lugar: " << (*it).Ocupante.hizoReservacion << "\n" << std::endl;
-        }
-        logsHabitaciones << "-----------------------------------------------------------------------------" << std::endl;*/
-
-        int clientesCheckout = 0;
-
-        //For para revisa si el cliente hospedado ya debe irse y dejar al habitación disponible
-        for(std::vector<Cuarto>::iterator it = habitaciones.begin(); it != habitaciones.end(); it++)
-        {
-          if ((*it).Ocupante.diasDeHospedaje <= 0 && (*it).Ocupante.numeroDeReservacion != 0)
-          {
-            //std::string cuarto = ((*it).tipoDeCuarto);
-            int cuarto = ((*it).Ocupante.tipoDeCuarto);
-            totalDeHuespedes -= (*it).Ocupante.cantidadDePersonas;
-            Reservacion nuevoReservacion = Reservacion(0,0,0,0,0,0,0,0,0);
-            (*it).Ocupante = nuevoReservacion;
-            //clientesHospedados.erase(it);
-            clientesCheckout++;
-            habitacionesDisponibles++;
-          }
-        }
-
-        //Se anota en el log de habitaicones como queda al finalizar el checkout e iniciar el checkin para revisar que se hayan ido todos
-        /*logsHabitaciones << "Habitaciones al finalizar el Check-Out e iniciar el CheckIn en el dia: " << j << "\n" << std::endl;
-        for(std::vector<Cuarto>::iterator it = habitaciones.begin(); it != habitaciones.end(); it++)
-        {
-          logsHabitaciones << "Habitacion: " << (*it).numeroDeCuarto << "\n--Tipo de habitacion: " << (*it).tipoDeCuarto << "\n--Ocupante: " << (*it).Ocupante.numeroDeReservacion << "\n--Personas: " << (*it).Ocupante.cantidadDePersonas << "\n--Tiempo de Estancia Restante: " << (*it).Ocupante.diasDeHospedaje << "\n--Reservo Lugar: " << (*it).Ocupante.hizoReservacion << "\n" << std::endl;
-        }
-        logsHabitaciones << "-----------------------------------------------------------------------------" << std::endl;
-
-        logsColaCheckIn << "Cola del CheckIn al finalizar el Check-Out e iniciar el CheckIn: " << j << "\n" << std::endl;
-        for (std::list<Reservacion>::iterator it = colaCheckIn.begin(); it != colaCheckIn.end(); it++)
-        {
-          logsColaCheckIn << "Reservacion: Dia " << (*it).diaLlegada << "--- Hora " << (*it).horaLLegada << "\n--Tipo de habitacion: " << (*it).tipoDeCuarto << "\n--Personas: " << (*it).cantidadDePersonas << "\n--Reservo Lugar: " << (*it).hizoReservacion << "\n" << std::endl;
-        }
-        logsColaCheckIn << "-----------------------------------------------------------------------------" << std::endl;*/
-
-        //std::cout << "Hora del Checkout, abandonan el hotel: " << clientesCheckout << " personas" << std::endl;
-      }
-      if (i >= 12)
-      {
-        if (i <= 18)
-        {
-          simulacionSpa(j,i);
-        }
-        std::cout << "Hora: " << i <<":00" << std::endl;
-
-        //Se consigue el numero de reservaciones que llegan ese momento para restarse después al servicio ya que tienen prioridad
-        int reservacionesAsignadas = asignarReservaciones(j,i);
-
-        //Inicio Servicio de Valet
-        llegadaMomentoValet = llegadaValet(generator); // Variable aleatoria para generar clientes llegan al valet
-        servicioMomentoValet = evaluarServicioValet(servicioValet(generator)); // Variable aleatoria para generar cuantos servidores hay en el valet
-        serviciosValetcolaValet = simulacionValet(serviciosValetcolaValet.second,llegadaMomentoValet,servicioMomentoValet);
-        //Fin Servicio de Valet
-
-        //Clientes que entran al hotel
-        clientesEntrantes = serviciosValetcolaValet.first;
-
-        //Se restan las reservaciones a los clientes entrantes par adarles prioridad a estso y después atender a los que no tienen reservación
-        clientesEntrantes = clientesEntrantes - reservacionesAsignadas;
-
-        //Inicio Servicio de CheckIn
-        servicioMomentoCheckIn = evaluarServicioCheckIn(servicioCheckIn(generator)); // Variable aleatoria para generar cuantos servidores hay en el checkin
-        simulacionCheckin(colaCheckIn.size(),clientesEntrantes,servicioMomentoCheckIn,i,j);
-        //Fin Servicio de CheckIn
-      }
-      for (std::list<Reservacion>::iterator it = colaCheckIn.begin(); it != colaCheckIn.end(); it++)
-      {
-        (*it).tiempoDeEspera++;
-      }
-      colaCheckIn.remove_if(demasiada_espera);
-    }
-
-    //Se anota en los logs de habitaciones como quedan al finalizar el checkin del día
-    /*logsHabitaciones << "Habitaciones al finalizar el Check-In en el dia: " << j << "\n" << std::endl;
-    for(std::vector<Cuarto>::iterator it = habitaciones.begin(); it != habitaciones.end(); it++)
-    {
-      logsHabitaciones << "Habitacion: " << (*it).numeroDeCuarto << "\n--Tipo de habitacion: " << (*it).tipoDeCuarto << "\n--Ocupante: " << (*it).Ocupante.numeroDeReservacion << "\n--Tiempo de Estancia Restante: " << (*it).Ocupante.diasDeHospedaje << "\n--Personas: " << (*it).Ocupante.cantidadDePersonas << "\n--Reservo Lugar: " << (*it).Ocupante.hizoReservacion << "\n" << std::endl;
-    }
-    logsHabitaciones << "-----------------------------------------------------------------------------" << std::endl;
-    logsHabitaciones.close();
-
-    //Clientes que tienen una última oportunidad de entrar al hotel
-    logsColaCheckIn << "Cola del CheckIn justo antes de finalizar el Check-In en el día: " << j << "\n" << std::endl;
-    for (std::list<Reservacion>::iterator it = colaCheckIn.begin(); it != colaCheckIn.end(); it++)
-    {
-      logsColaCheckIn << "Reservacion: Dia " << (*it).diaLlegada << "--- Hora " << (*it).horaLLegada << "\n--Tipo de habitacion: " << (*it).tipoDeCuarto << "\n--Personas: " << (*it).cantidadDePersonas << "\n--Reservo Lugar: " << (*it).hizoReservacion << "\n--Espera: " << (*it).tiempoDeEspera << "\n" << std::endl;
-    }
-    logsColaCheckIn << "-----------------------------------------------------------------------------" << std::endl;*/
-
-    //Última oportunidad de registrar a los clientes
-    if(!colaCheckIn.empty())
-    {
-      for (std::list<Reservacion>::iterator it = colaCheckIn.begin(); it != colaCheckIn.end(); it++)
-      {
-        Reservacion nuevoReservacion = (*it);
-        if (nuevoReservacion.tipoDeCuarto == 1)
-        {
-          int i = 0;
-          bool saved = false;
-          while (!saved && i < habitacionesIndividualesTotales)
-          {
-            if(habitaciones[i].Ocupante.tipoDeCuarto == 0)
-            {
-              idReservacion++;
-              nuevoReservacion.numeroDeReservacion = idReservacion;
-              nuevoReservacion.atendido = 1;
-              (*it).atendido = 1;
-              habitaciones[i].Ocupante = nuevoReservacion;
-              totalDeHuespedes += nuevoReservacion.cantidadDePersonas;
-              habitacionesDisponibles--;
-              gananciasDelDiaPorCheckIn += nuevoReservacion.diasDeHospedaje * costoPorNocheIndividual;
-              saved = true;
-            }
-            else
-            {
-              i++;
-            }
-          }
-          if (saved == false)
-          {
-            std::cout << "No hay habitaciones individuales" << std::endl;
-          }
-        }
-        else if (nuevoReservacion.tipoDeCuarto == 2)
-        {
-          int i = habitacionesIndividualesTotales;
-          bool saved = false;
-          while (!saved && i < habitacionesIndividualesTotales+habitacionesDoblesTotales)
-          {
-            if(habitaciones[i].Ocupante.tipoDeCuarto == 0)
-            {
-              idReservacion++;
-              nuevoReservacion.numeroDeReservacion = idReservacion;
-              nuevoReservacion.atendido = 1;
-              (*it).atendido = 1;
-              habitaciones[i].Ocupante = nuevoReservacion;
-              totalDeHuespedes += nuevoReservacion.cantidadDePersonas;
-              habitacionesDisponibles--;
-              gananciasDelDiaPorCheckIn += nuevoReservacion.diasDeHospedaje * costoPorNocheDoble;
-              saved = true;
-            }
-            else
-            {
-              i++;
-            }
-          }
-          if (saved == false)
-          {
-            std::cout << "No hay habitaicones dobles" << std::endl;
-          }
-        }
-        else if (nuevoReservacion.tipoDeCuarto == 3)
-        {
-          int i = habitacionesIndividualesTotales+habitacionesDoblesTotales;
-          bool saved = false;
-          while (!saved && i < habitacionesIndividualesTotales+habitacionesDoblesTotales+habitacionesSuiteTotales)
-          {
-            if(habitaciones[i].Ocupante.tipoDeCuarto == 0)
-            {
-              idReservacion++;
-              nuevoReservacion.numeroDeReservacion = idReservacion;
-              nuevoReservacion.atendido = 1;
-              (*it).atendido = 1;
-              habitaciones[i].Ocupante = nuevoReservacion;
-              totalDeHuespedes += nuevoReservacion.cantidadDePersonas;
-              habitacionesDisponibles--;
-              gananciasDelDiaPorCheckIn += nuevoReservacion.diasDeHospedaje * costoPorNocheSuite;
-              saved = true;
-            }
-            else
-            {
-              i++;
-            }
-          }
-          if (saved == false)
-          {
-            std::cout << "No hay suites" << std::endl;
-          }
-        }
-      }
-    }
-
-    colaCheckIn.remove_if(fue_atendido);
-
-    //Se guarda en el log los clientes que se perdieron por llegar tarde
-    /*logsColaCheckIn << "Cola del CheckIn al finalizar el Check-In en el día (Clientes de media noche): " << j << "\n" << std::endl;
-    for (std::list<Reservacion>::iterator it = colaCheckIn.begin(); it != colaCheckIn.end(); it++)
-    {
-      logsColaCheckIn << "Reservacion: Dia " << (*it).diaLlegada << "--- Hora " << (*it).horaLLegada << "\n--Tipo de habitacion: " << (*it).tipoDeCuarto << "\n--Personas: " << (*it).cantidadDePersonas << "\n--Reservo Lugar: " << (*it).hizoReservacion << "\n--Espera: " << (*it).tiempoDeEspera << "\n" << std::endl;
-    }
-    logsColaCheckIn << "-----------------------------------------------------------------------------" << std::endl;
-    logsColaCheckIn.close();*/
-
-    //Se vacía la cola al finalizar el día porque no se pueden quedar ahí nada más los clientes
-    colaCheckIn.clear();
-
-    //Se le resta la noche a los clientes al terminar el día para que después se revise en el checkout
-    for(std::vector<Cuarto>::iterator it = habitaciones.begin(); it != habitaciones.end(); it++)
-    {
-      (*it).Ocupante.diasDeHospedaje--;
-    }
-
-    //Escritura en Logs
-    /*logFinanciero << "Finanzas del Día: " << j << std::endl;
-    logFinanciero << "Ganancias del Día Por CheckIn: " << gananciasDelDiaPorCheckIn << std::endl;
-    gananciasTotalesPorCheckIn += gananciasDelDiaPorCheckIn;
-    gananciasDelDiaPorCheckIn = 0;
-    logFinanciero << "Ganancias Perdidas del Día Por CheckIn: " << gananciasPerdidasDelDiaPorCheckIn << std::endl;
-    gananciasPerdidasTotalesPorCheckIn += gananciasPerdidasDelDiaPorCheckIn;
-    gananciasPerdidasDelDiaPorCheckIn = 0;
-    logFinanciero << "Ganancias del Día por Spa: " << gananciasDelDiaSpa << std::endl;
-    gananciasTotalesSpa += gananciasDelDiaSpa;
-    gananciasDelDiaSpa = 0;
-    logFinanciero << "Ganancias Perdidas del Día por Spa: " << gananciasPerdidasDelDiaPorSpa << std::endl;
-    gananciasPerdidasTotalesSpa += gananciasPerdidasDelDiaPorSpa;
-    gananciasPerdidasDelDiaPorSpa = 0;
-    logFinanciero << "Ganancias del Día por Lavanderia: " << gananciasDelDiaLavanderia << std::endl;
-    gananciasTotalesLavanderia += gananciasDelDiaLavanderia;
-    gananciasDelDiaLavanderia = 0;
-    logFinanciero << "Ganancias del Día por Restaurante: " << gananciasDiaRestaurante << std::endl;
-    gananciasTotalesRestaurante += gananciasDiaRestaurante;
-    gananciasDiaRestaurante = 0;
-    logFinanciero << "Ganancias Perdidas del Día por Restaurante: " << gananciasPerdidasDiaRestaurante << std::endl;
-    gananciasPerdidasTotalesRestaurante += gananciasPerdidasDiaRestaurante;
-    gananciasPerdidasDiaRestaurante = 0;
-    logFinanciero << "-----------------------------------------------------------------------------" << std::endl;
-    logSpa.close();
-    logLavanderia.close();
-    logGym.close();
-    logRestaurante.close();*/
-
-    //Escritura en pantalla
-    std::cout << "Finanzas del Día: " << j << std::endl;
-    std::cout << "Ganancias del Día Por CheckIn: " << gananciasDelDiaPorCheckIn << std::endl;
-    gananciasTotalesPorCheckIn += gananciasDelDiaPorCheckIn;
-    gananciasDelDiaPorCheckIn = 0;
-    std::cout << "Ganancias Perdidas del Día Por CheckIn: " << gananciasPerdidasDelDiaPorCheckIn << std::endl;
-    gananciasPerdidasTotalesPorCheckIn += gananciasPerdidasDelDiaPorCheckIn;
-    gananciasPerdidasDelDiaPorCheckIn = 0;
-    std::cout << "Ganancias del Día por Spa: " << gananciasDelDiaSpa << std::endl;
-    gananciasTotalesSpa += gananciasDelDiaSpa;
-    gananciasDelDiaSpa = 0;
-    std::cout << "Ganancias Perdidas del Día por Spa: " << gananciasPerdidasDelDiaPorSpa << std::endl;
-    gananciasPerdidasTotalesSpa += gananciasPerdidasDelDiaPorSpa;
-    gananciasPerdidasDelDiaPorSpa = 0;
-    std::cout << "Ganancias del Día por Lavanderia: " << gananciasDelDiaLavanderia << std::endl;
-    gananciasTotalesLavanderia += gananciasDelDiaLavanderia;
-    gananciasDelDiaLavanderia = 0;
-    std::cout << "Ganancias del Día por Restaurante: " << gananciasDiaRestaurante << std::endl;
-    gananciasTotalesRestaurante += gananciasDiaRestaurante;
-    gananciasDiaRestaurante = 0;
-    std::cout << "Ganancias Perdidas del Día por Restaurante: " << gananciasPerdidasDiaRestaurante << std::endl;
-    gananciasPerdidasTotalesRestaurante += gananciasPerdidasDiaRestaurante;
-    gananciasPerdidasDiaRestaurante = 0;
-    std::cout << "-----------------------------------------------------------------------------" << std::endl;
-
-  }
-  gananciasTotales = gananciasTotalesPorCheckIn + gananciasTotalesSpa + gananciasTotalesLavanderia + gananciasTotalesRestaurante;
-  gananciasPerdidasTotales = gananciasPerdidasTotalesPorCheckIn + gananciasPerdidasTotalesSpa + gananciasPerdidasTotalesRestaurante;
-
-  //Escritura en Logs
-  /*logFinanciero << "-----------------------------------------------------------------------------" << std::endl;
-  logFinanciero << "Ganancias Totales por CheckIn: " << gananciasTotalesPorCheckIn << std::endl;
-  logFinanciero << "Ganancias Perdidas Totales por CheckIn: " << gananciasPerdidasTotalesPorCheckIn << std::endl;
-  logFinanciero << "Ganancias Totales por Spa: " << gananciasTotalesSpa << std::endl;
-  logFinanciero << "Ganancias Perdidas Totales por Spa: " << gananciasPerdidasTotalesSpa << std::endl;
-  logFinanciero << "Ganancias Totales por Lavanderia: " << gananciasTotalesLavanderia << std::endl;
-  logFinanciero << "Ganancias Totales por Restaurante: " << gananciasTotalesRestaurante << std::endl;
-  logFinanciero << "Ganancias Perdidas Totales por Restaurante: " << gananciasPerdidasTotalesRestaurante << std::endl;
-  logFinanciero << "-----------------------------------------------------------------------------" << std::endl;
-  logFinanciero << "Ganancias Totales: " << gananciasTotales << std::endl;
-  logFinanciero << "Ganancias Perdidas Totales: " << gananciasPerdidasTotales << std::endl;
-  std::cout << totalDeHuespedes << '\n';
-  logFinanciero.close();*/
-
-  //Escritura en pantalla
-  std::cout << "-----------------------------------------------------------------------------" << std::endl;
-  std::cout << "Ganancias Totales por CheckIn: " << gananciasTotalesPorCheckIn << std::endl;
-  std::cout << "Ganancias Perdidas Totales por CheckIn: " << gananciasPerdidasTotalesPorCheckIn << std::endl;
-  std::cout << "Ganancias Totales por Spa: " << gananciasTotalesSpa << std::endl;
-  std::cout << "Ganancias Perdidas Totales por Spa: " << gananciasPerdidasTotalesSpa << std::endl;
-  std::cout << "Ganancias Totales por Lavanderia: " << gananciasTotalesLavanderia << std::endl;
-  std::cout << "Ganancias Totales por Restaurante: " << gananciasTotalesRestaurante << std::endl;
-  std::cout << "Ganancias Perdidas Totales por Restaurante: " << gananciasPerdidasTotalesRestaurante << std::endl;
-  std::cout << "-----------------------------------------------------------------------------" << std::endl;
-  std::cout << "Ganancias Totales: " << gananciasTotales << std::endl;
-  std::cout << "Ganancias Perdidas Totales: " << gananciasPerdidasTotales << std::endl;
-  std::cout << totalDeHuespedes << '\n';
-}
-
 #Llegada y servicio de Valet Parking del Hotel
 def simulacionValet (colaAutosValet, llegadaMomentoValet, servicioMomentoValet):
   autosNoServidosValet = 0
@@ -1255,3 +808,431 @@ def generarPerdidaComida(mesaComedor):
     gananciasPerdidasDiaRestaurante += mesaComedor.ocupacion * costoComidaPersona
 
   return
+
+def llegadaValet():
+  return np.random.poisson(10)
+
+def servicioValet():
+  return np.random.exponential(4.0)
+
+def servicioCheckIn():
+  return np.random.exponential(4.0)
+
+def main():
+  #For para llenar la lista de habitaciones y generar la cantidad de habitaciones señaladas en la variables
+  for i in range(totalDeHabitaciones):
+    if (i >= 0 and i < habitacionesIndividualesTotales):
+      #ASEGURAR QUE LOS CONSTRUCTORES ESTÉN HECHOS
+      nuevoReservacion = Reservacion(0,0,0,0,0,0,0,0,0)
+      nuevoCuarto = Cuarto(i+1,1,false,nuevoReservacion)
+      #VARIABLE GLOBAL habitaciones
+      habitaciones.append(nuevoCuarto)
+    #USO DE VARIABLES GLOBALES
+    elif (i >= habitacionesIndividualesTotales and i < habitacionesIndividualesTotales + habitacionesDoblesTotales):
+      #ASEGURAR QUE LOS CONSTRUCTORES ESTÉN HECHOS
+      nuevoReservacion = Reservacion(0,0,0,0,0,0,0,0,0)
+      nuevoCuarto = Cuarto(i+1,2,false,nuevoReservacion)
+      habitaciones.append(nuevoCuarto)
+    #USO DE VARIABLES GLOBALES
+    elif (i >= habitacionesIndividualesTotales + habitacionesDoblesTotales and i < habitacionesIndividualesTotales + habitacionesDoblesTotales + habitacionesSuiteTotales ):
+      #ASEGURAR QUE LOS CONSTRUCTORES ESTÉN HECHOS
+      nuevoReservacion = Reservacion(0,0,0,0,0,0,0,0,0)
+      nuevoCuarto = Cuarto(i+1,3,false,nuevoReservacion)
+      #VARIABLE GLOBAL habitaciones
+      habitaciones.append(nuevoCuarto)
+
+  ejemplo = clienteEnSpa()
+  ejemplo.tipoDeTratamiento = 0
+  ejemplo.duracionTratamiento = 0
+  ejemplo.tiempoDeEspera = 0
+  ejemplo.atendido = 0
+  ejemplo.idServicio = 0
+
+  for i in range(5):
+    #USO DE VARIABLE GLOBAL servicioDeSpa
+    servicioDeSpa.append(ejemplo)
+
+  clientazo = clienteEnGym()
+  clientazo.tipoDeEntrenamiento = 0
+  clientazo.duracionEntrenamiento = 0
+  clientazo.tiempoDeEspera = 0
+  clientazo.ejercitado = 0
+
+  for i in range(5):
+    #USO DE VARIABLE GLOBAL servicioDeGym
+    servicioDeGym.append(clientazo)
+
+  for i in range(30):
+    if (i > 0 and i < 20):
+      nuevaMesa = mesaComedor()
+      nuevaMesa.idMesa = i
+      nuevaMesa.capacidad = 2
+      nuevaMesa.ocupacion = 0
+      nuevaMesa.atendido = 0
+      nuevaMesa.tiempoDeEspera = 0
+      nuevaMesa.tiempoComida = 0
+      #USO DE VARIABLE GLOBAL mesasRestaurant
+      mesasRestaurant.append(nuevaMesa)
+    elif (i >= 20 and i <= 29):
+      nuevaMesa = mesaComedor()
+      nuevaMesa.idMesa = i
+      nuevaMesa.capacidad = 4
+      nuevaMesa.ocupacion = 0
+      nuevaMesa.atendido = 0
+      nuevaMesa.tiempoDeEspera = 0
+      nuevaMesa.tiempoComida = 0
+      #USO DE VARIABLE GLOBAL mesasRestaurant
+      mesasRestaurant.append(nuevaMesa)
+
+  unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+  std::default_random_engine generator(seed);
+
+  # Inicio de elementos de la simulacion del servicio del valet parking
+  llegadaMomentoValet = 0;
+  servicioMomentoValet = 0;
+  #TUPLA
+  serviciosValetcolaValet = (0,0)
+  #Final de elementos de la simulacion del servico del valet parking
+
+  #Inicio de elementos de la simulacion del check-in del Hotel
+  clientesEntrantes = 0
+  servicioMomentoCheckIn = 0
+  #USO DE VARIABLE GLOBAL totalDeHabitaciones
+  cuartosDisponibles = totalDeHabitaciones
+  #Final de elementos de la simulacion del check-in del Hotel
+
+  #For para simular cada día
+  for j in range(diasSimulados):
+    print("Día: ",j+1)
+    #Funcion para generar un numero aleatorio de reservaciones futuras diarias
+    simulacionReservaciones(j);
+
+    //Se anota en el log las revervaciones futuras que se han generado hasta ese día
+    /*logsReservaciones << "Reservaciones al día: " << j << "\n" << std::endl;
+    for (std::list<Reservacion>::iterator it = reservacionesFuturas.begin(); it != reservacionesFuturas.end(); it++)
+    {
+      logsReservaciones << "Reservacion: Dia " << (*it).diaLlegada << "--- Hora " << (*it).horaLLegada << "\n--Tipo de habitacion: " << (*it).tipoDeCuarto << "\n--Tiempo de Estancia: " << (*it).diasDeHospedaje << "\n--Personas: " << (*it).cantidadDePersonas << "\n--Reservo Lugar: " << (*it).hizoReservacion << "\n" << std::endl;
+    }
+    logsReservaciones << "-----------------------------------------------------------------------------" << std::endl;
+    logsReservaciones.close();*/
+
+    //For para simular cada hora
+    for (int i=0; i <= 23; i++)
+    {
+      if(i >= 6 && i <= 11)
+      {
+        simulacionRestaurante(j,i);
+      }
+      if (i >= 13 && i <= 18)
+      {
+        simulacionRestaurante(j,i);
+      }
+      if (i >=19 && i <= 23)
+      {
+        simulacionRestaurante(j,i);
+      }
+      if (i >= 10 && i <= 17)
+      {
+        simulacionLavanderia(j,i);
+      }
+      if (i==11)
+      {
+        //Se anota en el log como se encuentran las habitaciones antes del checkout para saber si alguien ya se tiene que ir
+        /*logsHabitaciones << "Habitaciones al iniciar el Check-Out en el dia: " << j << "\n" << std::endl;
+        for(std::vector<Cuarto>::iterator it = habitaciones.begin(); it != habitaciones.end(); it++)
+        {
+          logsHabitaciones << "Habitacion: " << (*it).numeroDeCuarto << "\n--Tipo de habitacion: " << (*it).tipoDeCuarto << "\n--Ocupante: " << (*it).Ocupante.numeroDeReservacion << "\n--Personas: " << (*it).Ocupante.cantidadDePersonas <<"\n--Tiempo de Estancia Restante: " << (*it).Ocupante.diasDeHospedaje << "\n--Reservo Lugar: " << (*it).Ocupante.hizoReservacion << "\n" << std::endl;
+        }
+        logsHabitaciones << "-----------------------------------------------------------------------------" << std::endl;*/
+
+        int clientesCheckout = 0;
+
+        //For para revisa si el cliente hospedado ya debe irse y dejar al habitación disponible
+        for(std::vector<Cuarto>::iterator it = habitaciones.begin(); it != habitaciones.end(); it++)
+        {
+          if ((*it).Ocupante.diasDeHospedaje <= 0 && (*it).Ocupante.numeroDeReservacion != 0)
+          {
+            //std::string cuarto = ((*it).tipoDeCuarto);
+            int cuarto = ((*it).Ocupante.tipoDeCuarto);
+            totalDeHuespedes -= (*it).Ocupante.cantidadDePersonas;
+            Reservacion nuevoReservacion = Reservacion(0,0,0,0,0,0,0,0,0);
+            (*it).Ocupante = nuevoReservacion;
+            //clientesHospedados.erase(it);
+            clientesCheckout++;
+            habitacionesDisponibles++;
+          }
+        }
+
+        //Se anota en el log de habitaicones como queda al finalizar el checkout e iniciar el checkin para revisar que se hayan ido todos
+        /*logsHabitaciones << "Habitaciones al finalizar el Check-Out e iniciar el CheckIn en el dia: " << j << "\n" << std::endl;
+        for(std::vector<Cuarto>::iterator it = habitaciones.begin(); it != habitaciones.end(); it++)
+        {
+          logsHabitaciones << "Habitacion: " << (*it).numeroDeCuarto << "\n--Tipo de habitacion: " << (*it).tipoDeCuarto << "\n--Ocupante: " << (*it).Ocupante.numeroDeReservacion << "\n--Personas: " << (*it).Ocupante.cantidadDePersonas << "\n--Tiempo de Estancia Restante: " << (*it).Ocupante.diasDeHospedaje << "\n--Reservo Lugar: " << (*it).Ocupante.hizoReservacion << "\n" << std::endl;
+        }
+        logsHabitaciones << "-----------------------------------------------------------------------------" << std::endl;
+
+        logsColaCheckIn << "Cola del CheckIn al finalizar el Check-Out e iniciar el CheckIn: " << j << "\n" << std::endl;
+        for (std::list<Reservacion>::iterator it = colaCheckIn.begin(); it != colaCheckIn.end(); it++)
+        {
+          logsColaCheckIn << "Reservacion: Dia " << (*it).diaLlegada << "--- Hora " << (*it).horaLLegada << "\n--Tipo de habitacion: " << (*it).tipoDeCuarto << "\n--Personas: " << (*it).cantidadDePersonas << "\n--Reservo Lugar: " << (*it).hizoReservacion << "\n" << std::endl;
+        }
+        logsColaCheckIn << "-----------------------------------------------------------------------------" << std::endl;*/
+
+        //std::cout << "Hora del Checkout, abandonan el hotel: " << clientesCheckout << " personas" << std::endl;
+      }
+      if (i >= 12)
+      {
+        if (i <= 18)
+        {
+          simulacionSpa(j,i);
+        }
+        std::cout << "Hora: " << i <<":00" << std::endl;
+
+        //Se consigue el numero de reservaciones que llegan ese momento para restarse después al servicio ya que tienen prioridad
+        int reservacionesAsignadas = asignarReservaciones(j,i);
+
+        //Inicio Servicio de Valet
+        llegadaMomentoValet = llegadaValet(generator); // Variable aleatoria para generar clientes llegan al valet
+        servicioMomentoValet = evaluarServicioValet(servicioValet(generator)); // Variable aleatoria para generar cuantos servidores hay en el valet
+        serviciosValetcolaValet = simulacionValet(serviciosValetcolaValet.second,llegadaMomentoValet,servicioMomentoValet);
+        //Fin Servicio de Valet
+
+        //Clientes que entran al hotel
+        clientesEntrantes = serviciosValetcolaValet.first;
+
+        //Se restan las reservaciones a los clientes entrantes par adarles prioridad a estso y después atender a los que no tienen reservación
+        clientesEntrantes = clientesEntrantes - reservacionesAsignadas;
+
+        //Inicio Servicio de CheckIn
+        servicioMomentoCheckIn = evaluarServicioCheckIn(servicioCheckIn(generator)); // Variable aleatoria para generar cuantos servidores hay en el checkin
+        simulacionCheckin(colaCheckIn.size(),clientesEntrantes,servicioMomentoCheckIn,i,j);
+        //Fin Servicio de CheckIn
+      }
+      for (std::list<Reservacion>::iterator it = colaCheckIn.begin(); it != colaCheckIn.end(); it++)
+      {
+        (*it).tiempoDeEspera++;
+      }
+      colaCheckIn.remove_if(demasiada_espera);
+    }
+
+    //Se anota en los logs de habitaciones como quedan al finalizar el checkin del día
+    /*logsHabitaciones << "Habitaciones al finalizar el Check-In en el dia: " << j << "\n" << std::endl;
+    for(std::vector<Cuarto>::iterator it = habitaciones.begin(); it != habitaciones.end(); it++)
+    {
+      logsHabitaciones << "Habitacion: " << (*it).numeroDeCuarto << "\n--Tipo de habitacion: " << (*it).tipoDeCuarto << "\n--Ocupante: " << (*it).Ocupante.numeroDeReservacion << "\n--Tiempo de Estancia Restante: " << (*it).Ocupante.diasDeHospedaje << "\n--Personas: " << (*it).Ocupante.cantidadDePersonas << "\n--Reservo Lugar: " << (*it).Ocupante.hizoReservacion << "\n" << std::endl;
+    }
+    logsHabitaciones << "-----------------------------------------------------------------------------" << std::endl;
+    logsHabitaciones.close();
+
+    //Clientes que tienen una última oportunidad de entrar al hotel
+    logsColaCheckIn << "Cola del CheckIn justo antes de finalizar el Check-In en el día: " << j << "\n" << std::endl;
+    for (std::list<Reservacion>::iterator it = colaCheckIn.begin(); it != colaCheckIn.end(); it++)
+    {
+      logsColaCheckIn << "Reservacion: Dia " << (*it).diaLlegada << "--- Hora " << (*it).horaLLegada << "\n--Tipo de habitacion: " << (*it).tipoDeCuarto << "\n--Personas: " << (*it).cantidadDePersonas << "\n--Reservo Lugar: " << (*it).hizoReservacion << "\n--Espera: " << (*it).tiempoDeEspera << "\n" << std::endl;
+    }
+    logsColaCheckIn << "-----------------------------------------------------------------------------" << std::endl;*/
+
+    //Última oportunidad de registrar a los clientes
+    if(!colaCheckIn.empty())
+    {
+      for (std::list<Reservacion>::iterator it = colaCheckIn.begin(); it != colaCheckIn.end(); it++)
+      {
+        Reservacion nuevoReservacion = (*it);
+        if (nuevoReservacion.tipoDeCuarto == 1)
+        {
+          int i = 0;
+          bool saved = false;
+          while (!saved && i < habitacionesIndividualesTotales)
+          {
+            if(habitaciones[i].Ocupante.tipoDeCuarto == 0)
+            {
+              idReservacion++;
+              nuevoReservacion.numeroDeReservacion = idReservacion;
+              nuevoReservacion.atendido = 1;
+              (*it).atendido = 1;
+              habitaciones[i].Ocupante = nuevoReservacion;
+              totalDeHuespedes += nuevoReservacion.cantidadDePersonas;
+              habitacionesDisponibles--;
+              gananciasDelDiaPorCheckIn += nuevoReservacion.diasDeHospedaje * costoPorNocheIndividual;
+              saved = true;
+            }
+            else
+            {
+              i++;
+            }
+          }
+          if (saved == false)
+          {
+            std::cout << "No hay habitaciones individuales" << std::endl;
+          }
+        }
+        else if (nuevoReservacion.tipoDeCuarto == 2)
+        {
+          int i = habitacionesIndividualesTotales;
+          bool saved = false;
+          while (!saved && i < habitacionesIndividualesTotales+habitacionesDoblesTotales)
+          {
+            if(habitaciones[i].Ocupante.tipoDeCuarto == 0)
+            {
+              idReservacion++;
+              nuevoReservacion.numeroDeReservacion = idReservacion;
+              nuevoReservacion.atendido = 1;
+              (*it).atendido = 1;
+              habitaciones[i].Ocupante = nuevoReservacion;
+              totalDeHuespedes += nuevoReservacion.cantidadDePersonas;
+              habitacionesDisponibles--;
+              gananciasDelDiaPorCheckIn += nuevoReservacion.diasDeHospedaje * costoPorNocheDoble;
+              saved = true;
+            }
+            else
+            {
+              i++;
+            }
+          }
+          if (saved == false)
+          {
+            std::cout << "No hay habitaicones dobles" << std::endl;
+          }
+        }
+        else if (nuevoReservacion.tipoDeCuarto == 3)
+        {
+          int i = habitacionesIndividualesTotales+habitacionesDoblesTotales;
+          bool saved = false;
+          while (!saved && i < habitacionesIndividualesTotales+habitacionesDoblesTotales+habitacionesSuiteTotales)
+          {
+            if(habitaciones[i].Ocupante.tipoDeCuarto == 0)
+            {
+              idReservacion++;
+              nuevoReservacion.numeroDeReservacion = idReservacion;
+              nuevoReservacion.atendido = 1;
+              (*it).atendido = 1;
+              habitaciones[i].Ocupante = nuevoReservacion;
+              totalDeHuespedes += nuevoReservacion.cantidadDePersonas;
+              habitacionesDisponibles--;
+              gananciasDelDiaPorCheckIn += nuevoReservacion.diasDeHospedaje * costoPorNocheSuite;
+              saved = true;
+            }
+            else
+            {
+              i++;
+            }
+          }
+          if (saved == false)
+          {
+            std::cout << "No hay suites" << std::endl;
+          }
+        }
+      }
+    }
+
+    colaCheckIn.remove_if(fue_atendido);
+
+    //Se guarda en el log los clientes que se perdieron por llegar tarde
+    /*logsColaCheckIn << "Cola del CheckIn al finalizar el Check-In en el día (Clientes de media noche): " << j << "\n" << std::endl;
+    for (std::list<Reservacion>::iterator it = colaCheckIn.begin(); it != colaCheckIn.end(); it++)
+    {
+      logsColaCheckIn << "Reservacion: Dia " << (*it).diaLlegada << "--- Hora " << (*it).horaLLegada << "\n--Tipo de habitacion: " << (*it).tipoDeCuarto << "\n--Personas: " << (*it).cantidadDePersonas << "\n--Reservo Lugar: " << (*it).hizoReservacion << "\n--Espera: " << (*it).tiempoDeEspera << "\n" << std::endl;
+    }
+    logsColaCheckIn << "-----------------------------------------------------------------------------" << std::endl;
+    logsColaCheckIn.close();*/
+
+    //Se vacía la cola al finalizar el día porque no se pueden quedar ahí nada más los clientes
+    colaCheckIn.clear();
+
+    //Se le resta la noche a los clientes al terminar el día para que después se revise en el checkout
+    for(std::vector<Cuarto>::iterator it = habitaciones.begin(); it != habitaciones.end(); it++)
+    {
+      (*it).Ocupante.diasDeHospedaje--;
+    }
+
+    //Escritura en Logs
+    /*logFinanciero << "Finanzas del Día: " << j << std::endl;
+    logFinanciero << "Ganancias del Día Por CheckIn: " << gananciasDelDiaPorCheckIn << std::endl;
+    gananciasTotalesPorCheckIn += gananciasDelDiaPorCheckIn;
+    gananciasDelDiaPorCheckIn = 0;
+    logFinanciero << "Ganancias Perdidas del Día Por CheckIn: " << gananciasPerdidasDelDiaPorCheckIn << std::endl;
+    gananciasPerdidasTotalesPorCheckIn += gananciasPerdidasDelDiaPorCheckIn;
+    gananciasPerdidasDelDiaPorCheckIn = 0;
+    logFinanciero << "Ganancias del Día por Spa: " << gananciasDelDiaSpa << std::endl;
+    gananciasTotalesSpa += gananciasDelDiaSpa;
+    gananciasDelDiaSpa = 0;
+    logFinanciero << "Ganancias Perdidas del Día por Spa: " << gananciasPerdidasDelDiaPorSpa << std::endl;
+    gananciasPerdidasTotalesSpa += gananciasPerdidasDelDiaPorSpa;
+    gananciasPerdidasDelDiaPorSpa = 0;
+    logFinanciero << "Ganancias del Día por Lavanderia: " << gananciasDelDiaLavanderia << std::endl;
+    gananciasTotalesLavanderia += gananciasDelDiaLavanderia;
+    gananciasDelDiaLavanderia = 0;
+    logFinanciero << "Ganancias del Día por Restaurante: " << gananciasDiaRestaurante << std::endl;
+    gananciasTotalesRestaurante += gananciasDiaRestaurante;
+    gananciasDiaRestaurante = 0;
+    logFinanciero << "Ganancias Perdidas del Día por Restaurante: " << gananciasPerdidasDiaRestaurante << std::endl;
+    gananciasPerdidasTotalesRestaurante += gananciasPerdidasDiaRestaurante;
+    gananciasPerdidasDiaRestaurante = 0;
+    logFinanciero << "-----------------------------------------------------------------------------" << std::endl;
+    logSpa.close();
+    logLavanderia.close();
+    logGym.close();
+    logRestaurante.close();*/
+
+    //Escritura en pantalla
+    std::cout << "Finanzas del Día: " << j << std::endl;
+    std::cout << "Ganancias del Día Por CheckIn: " << gananciasDelDiaPorCheckIn << std::endl;
+    gananciasTotalesPorCheckIn += gananciasDelDiaPorCheckIn;
+    gananciasDelDiaPorCheckIn = 0;
+    std::cout << "Ganancias Perdidas del Día Por CheckIn: " << gananciasPerdidasDelDiaPorCheckIn << std::endl;
+    gananciasPerdidasTotalesPorCheckIn += gananciasPerdidasDelDiaPorCheckIn;
+    gananciasPerdidasDelDiaPorCheckIn = 0;
+    std::cout << "Ganancias del Día por Spa: " << gananciasDelDiaSpa << std::endl;
+    gananciasTotalesSpa += gananciasDelDiaSpa;
+    gananciasDelDiaSpa = 0;
+    std::cout << "Ganancias Perdidas del Día por Spa: " << gananciasPerdidasDelDiaPorSpa << std::endl;
+    gananciasPerdidasTotalesSpa += gananciasPerdidasDelDiaPorSpa;
+    gananciasPerdidasDelDiaPorSpa = 0;
+    std::cout << "Ganancias del Día por Lavanderia: " << gananciasDelDiaLavanderia << std::endl;
+    gananciasTotalesLavanderia += gananciasDelDiaLavanderia;
+    gananciasDelDiaLavanderia = 0;
+    std::cout << "Ganancias del Día por Restaurante: " << gananciasDiaRestaurante << std::endl;
+    gananciasTotalesRestaurante += gananciasDiaRestaurante;
+    gananciasDiaRestaurante = 0;
+    std::cout << "Ganancias Perdidas del Día por Restaurante: " << gananciasPerdidasDiaRestaurante << std::endl;
+    gananciasPerdidasTotalesRestaurante += gananciasPerdidasDiaRestaurante;
+    gananciasPerdidasDiaRestaurante = 0;
+    std::cout << "-----------------------------------------------------------------------------" << std::endl;
+
+  }
+  gananciasTotales = gananciasTotalesPorCheckIn + gananciasTotalesSpa + gananciasTotalesLavanderia + gananciasTotalesRestaurante;
+  gananciasPerdidasTotales = gananciasPerdidasTotalesPorCheckIn + gananciasPerdidasTotalesSpa + gananciasPerdidasTotalesRestaurante;
+
+  //Escritura en Logs
+  /*logFinanciero << "-----------------------------------------------------------------------------" << std::endl;
+  logFinanciero << "Ganancias Totales por CheckIn: " << gananciasTotalesPorCheckIn << std::endl;
+  logFinanciero << "Ganancias Perdidas Totales por CheckIn: " << gananciasPerdidasTotalesPorCheckIn << std::endl;
+  logFinanciero << "Ganancias Totales por Spa: " << gananciasTotalesSpa << std::endl;
+  logFinanciero << "Ganancias Perdidas Totales por Spa: " << gananciasPerdidasTotalesSpa << std::endl;
+  logFinanciero << "Ganancias Totales por Lavanderia: " << gananciasTotalesLavanderia << std::endl;
+  logFinanciero << "Ganancias Totales por Restaurante: " << gananciasTotalesRestaurante << std::endl;
+  logFinanciero << "Ganancias Perdidas Totales por Restaurante: " << gananciasPerdidasTotalesRestaurante << std::endl;
+  logFinanciero << "-----------------------------------------------------------------------------" << std::endl;
+  logFinanciero << "Ganancias Totales: " << gananciasTotales << std::endl;
+  logFinanciero << "Ganancias Perdidas Totales: " << gananciasPerdidasTotales << std::endl;
+  std::cout << totalDeHuespedes << '\n';
+  logFinanciero.close();*/
+
+  //Escritura en pantalla
+  std::cout << "-----------------------------------------------------------------------------" << std::endl;
+  std::cout << "Ganancias Totales por CheckIn: " << gananciasTotalesPorCheckIn << std::endl;
+  std::cout << "Ganancias Perdidas Totales por CheckIn: " << gananciasPerdidasTotalesPorCheckIn << std::endl;
+  std::cout << "Ganancias Totales por Spa: " << gananciasTotalesSpa << std::endl;
+  std::cout << "Ganancias Perdidas Totales por Spa: " << gananciasPerdidasTotalesSpa << std::endl;
+  std::cout << "Ganancias Totales por Lavanderia: " << gananciasTotalesLavanderia << std::endl;
+  std::cout << "Ganancias Totales por Restaurante: " << gananciasTotalesRestaurante << std::endl;
+  std::cout << "Ganancias Perdidas Totales por Restaurante: " << gananciasPerdidasTotalesRestaurante << std::endl;
+  std::cout << "-----------------------------------------------------------------------------" << std::endl;
+  std::cout << "Ganancias Totales: " << gananciasTotales << std::endl;
+  std::cout << "Ganancias Perdidas Totales: " << gananciasPerdidasTotales << std::endl;
+  std::cout << totalDeHuespedes << '\n';
+}
+#FIN DEL MAIN
+
+if __name__ == "__main__":
+    main()
