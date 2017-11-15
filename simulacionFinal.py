@@ -63,7 +63,7 @@ class mesaComedor:
   tiempoDeEspera = 0
 
 # variables para simulación
-diasSimulados = 1
+diasSimulados = 3
 horasDeServicio = 12
 totalDeHabitaciones = 10
 habitacionesDisponibles = totalDeHabitaciones
@@ -338,46 +338,49 @@ def evaluarTipoHabitacion (valorExponencial):
   return habitacion
 
 def estanciaHotel2():
-  return np.random.uniform(1,5)
+  return int(np.random.uniform(1,5))
 
 def diaLlegadaHotel(diaActual,diasSimulados):
-  return np.random.uniform(diaActual,diasSimulados)
+  return int(np.random.uniform(diaActual,diasSimulados))
 
 def horaLlegadaHotel():
-  return np.random.uniform(12,23)
+  return int(np.random.uniform(12,23))
 
 def reservacionesDiarias():
-  return np.random.poisson(5)
+  return int(np.random.poisson(5))
 
 def simulacionReservaciones (diaActual):
+  global reservacionesFuturas
+
   reservacionesGeneradas = reservacionesDiarias()
   tiempoEstancia = 0
   llegada = 0
   tipoDeCuarto = 0
-  horaLLegada = 0
+  horaLlegada = 0
 
   for i in range(reservacionesGeneradas):
     tiempoEstancia = estanciaHotel2()
-    #SE USA VARIABLE GLOBAL diasSimulados
+    #VARIABLE GLOBAL diasSimulados
     llegada = diaLlegadaHotel(diaActual,diasSimulados)
     tipoDeCuarto = evaluarTipoHabitacion(seleccionHabitacion())
     horaLlegada = horaLlegadaHotel()
     numeroDePersonas = personasPorReservacion(tipoDeCuarto)
-    #IMPORTANTE PARA RESERVACION
-    nuevaReservacion = Reservacion(0,tiempoEstancia,tipoDeCuarto,horaLLegada,llegada,numeroDePersonas,0,1,0)
+    nuevaReservacion = Reservacion(0,tiempoEstancia,tipoDeCuarto,horaLlegada,llegada,numeroDePersonas,0,1,0)
     reservacionesFuturas.append(nuevaReservacion)
 
   return 
 
 def asignarReservaciones (diaActual,horaActual):
+  global colCheckIn
+  global reservacionesFuturas
   reservacionesAsignadas = 0
 
-  #SE USA VARIABLE GLOBAL reservacionesFuturas
+  #VARIABLE GLOBAL reservacionesFuturas
   for it in reservacionesFuturas:
     if (it.diaLlegada == diaActual and it.horaLLegada == horaActual):
-      #SE USA VARIABLE GLOBAL colaCheckIn
+      #VARIABLE GLOBAL colaCheckIn
       colaCheckIn.insert(0,it)
-    reservacionesAsignadas = reservacionesAsignadas + 1
+    reservacionesAsignadas += 1
 
   return reservacionesAsignadas
 
@@ -385,11 +388,11 @@ def personasPorReservacion(tipoDeCuarto):
   personas = 0
 
   if (tipoDeCuarto == 1): 
-    personas = np.random.uniform(1,2)
+    personas = int(np.random.uniform(1,2))
   elif (tipoDeCuarto == 2):
-    personas = np.random.uniform(2,4)
+    personas = int(np.random.uniform(2,4))
   else:
-    personas = np.random.uniform(1,4)
+    personas = int(np.random.uniform(1,4))
 
   return personas
 
@@ -518,7 +521,7 @@ def perdidasSpa(cliente):
   return
 
 def llegadaLavanderia():
-  return np.random.poisson(4)
+  return int(np.random.poisson(4))
 
 def tipoDePrenda():
   return np.random.exponential(3.5)
@@ -532,6 +535,7 @@ def servicioLavanderia():
 def simulacionLavanderia(diaActual, horaActual):
   #DECLARACION DE VARIABLES GLOBALES PARA SU USO
   global colaLavanderia
+  global gananciasDelDiaLavanderia
 
   llegadasLavanderia = llegadaLavanderia()
   cantidadServicio = evaluarServicioLavanderia(servicioLavanderia())
@@ -545,32 +549,32 @@ def simulacionLavanderia(diaActual, horaActual):
     nuevoCliente.idLavanderia = 0
     colaLavanderia.append(nuevoCliente)
 
-  i = 0
-
   it = 0
-  # colaLavanderia
+  idLavado = 0
   while (cantidadServicio > 0 and (not colaLavanderia) and it != (len(colaLavanderia) - 1)):
-    idLavado = idLavado + 1
+    idLavado += 1
     colaLavanderia[it].idLavanderia = idLavado
     colaLavanderia[it].atendido = 1
     if (colaLavanderia[it].tipoDePrenda == 1):
       if (colaLavanderia[it].tipoDeServicio == 1):
-        gananciasDelDiaLavanderia = gananciasDelDiaLavanderia + 50
+        gananciasDelDiaLavanderia += 50
       elif (colaLavanderia[it].tipoDeServicio == 2):
-        gananciasDelDiaLavanderia = gananciasDelDiaLavanderia + 20
+        gananciasDelDiaLavanderia += 20
+
     elif (colaLavanderia[it].tipoDePrenda == 2):
       if (colaLavanderia[it].tipoDeServicio == 1):
-        gananciasDelDiaLavanderia = gananciasDelDiaLavanderia + 100
+        gananciasDelDiaLavanderia += 100
       elif (colaLavanderia[it].tipoDeServicio == 2):
-        gananciasDelDiaLavanderia = gananciasDelDiaLavanderia + 60
+        gananciasDelDiaLavanderia += 60
+
     elif (colaLavanderia[it].tipoDePrenda == 3):
       if (colaLavanderia[it].tipoDeServicio == 1):
-        gananciasDelDiaLavanderia = gananciasDelDiaLavanderia + 200
+        gananciasDelDiaLavanderia += 200
       elif (colaLavanderia[it].tipoDeServicio == 2):
-        gananciasDelDiaLavanderia = gananciasDelDiaLavanderia + 150
+        gananciasDelDiaLavanderia += 150
 
-    cantidadServicio = cantidadServicio - 1
-    it = it + 1
+    cantidadServicio -= 1
+    it += 1
     
   colaLavanderia = [elem for elem in colaLavanderia if not recibido_lavanderia(elem)]
 
@@ -714,6 +718,7 @@ def simulacionRestaurante(diaActual,horaActual):
   #DECLARACION DE VARIABLES GLOBALES PARA SU USO
   global colaRestaurant
   global personasEnColaYRestaurante
+  global mesasRestaurant
 
   noLoHagas = 0
 
@@ -729,13 +734,12 @@ def simulacionRestaurante(diaActual,horaActual):
       mesa.tiempoDeEspera = 0
       mesa.tiempoComida = 0
     
-    # global personasEnColaYRestaurante
     personasEnColaYRestaurante = 0
   elif (not noLoHagas):
 
     for mesa in mesasRestaurant:
       if (mesa.tiempoComida == 0):
-        # global personasEnColaYRestaurante
+        #VARIABLE GLOBAL personasEnColaYRestaurante
         personasEnColaYRestaurante -= mesa.ocupacion
 
         mesa.ocupacion = 0
@@ -773,7 +777,7 @@ def simulacionRestaurante(diaActual,horaActual):
             mesasRestaurant[i2].tiempoComida = colaRestaurant[i].tiempoComida
             colaRestaurant[i].atendido = 1
 
-            # global personasEnColaYRestaurante
+            #VARIABLE GLOBAL personasEnColaYRestaurante
             personasEnColaYRestaurante += mesasRestaurant[i2].ocupacion
             gananciasDiaRestaurante += costoComidaPersona * mesasRestaurant[i2].ocupacion
             ingresa = 1
@@ -789,22 +793,22 @@ def simulacionRestaurante(diaActual,horaActual):
             mesasRestaurant[i2].tiempoComida = colaRestaurant[i].tiempoComida
             colaRestaurant[i].atendido = 1
 
-            # global personasEnColaYRestaurante
+            #VARIABLE GLOBAL personasEnColaYRestaurante
             personasEnColaYRestaurante += mesasRestaurant[i2].ocupacion
-            # global gananciasDiaRestaurante
+            #VARIABLE GLOBAL gananciasDiaRestaurante
             gananciasDiaRestaurante += costoComidaPersona * mesasRestaurant[i2].ocupacion
             ingresa = 1
           else:
             i2 += 1
       i+= 1
 
-    # global colaRestaurant
+    #VARIABLE GLOBAL colaRestaurant
     colaRestaurant = [elem for elem in colaRestaurant if not recibido_en_restaurante(elem)]
 
     for mesa in colaRestaurant:
       mesa.tiempoDeEspera += 1
 
-    # global colaRestaurant
+    #VARIABLE GLOBAL colaRestaurant
     colaRestaurant = [elem for elem in colaRestaurant if not espera_restaurante(elem)]
 
     for mesa in mesasRestaurant:
@@ -862,7 +866,6 @@ def servicioCheckIn():
 
 def main():
   #DECLARACION DE LAS VARIABLES GLOBALES PARA USARLAS
-  global colaCheckIn
   global gananciasDelDiaPorCheckIn
   global gananciasTotalesPorCheckIn
   global gananciasPerdidasDelDiaPorCheckIn
@@ -877,8 +880,13 @@ def main():
   global gananciasTotalesRestaurante
   global gananciasPerdidasDiaRestaurante
   global gananciasPerdidasTotalesRestaurante
+  global colaCheckIn
   global totalDeHuespedes
   global habitaciones
+  global habitacionesDisponibles
+  global servicioDeSpa
+  global servicioDeGym
+  global mesasRestaurant
 
   #For para llenar la lista de habitaciones y generar la cantidad de habitaciones señaladas en la variables
   for i in range(totalDeHabitaciones):
@@ -899,47 +907,35 @@ def main():
       nuevoCuarto = Cuarto(i+1,3,0,nuevoReservacion)
       habitaciones.append(nuevoCuarto)
 
+  #se crea un cliente en spa genérico
   ejemplo = clienteEnSpa()
-  ejemplo.tipoDeTratamiento = 0
-  ejemplo.duracionTratamiento = 0
-  ejemplo.tiempoDeEspera = 0
-  ejemplo.atendido = 0
-  ejemplo.idServicio = 0
-
+  #se llena con 5 clientes el spa
   for i in range(5):
-    #USO DE VARIABLE GLOBAL servicioDeSpa
+    #VARIABLE GLOBAL servicioDeSpa
     servicioDeSpa.append(ejemplo)
 
+  #se crea un cliente en gym genérico
   clientazo = clienteEnGym()
-  clientazo.tipoDeEntrenamiento = 0
-  clientazo.duracionEntrenamiento = 0
-  clientazo.tiempoDeEspera = 0
-  clientazo.ejercitado = 0
-
+  #se llena con 5 clientes el gym
   for i in range(5):
-    #USO DE VARIABLE GLOBAL servicioDeGym
+    #VARIABLE GLOBAL servicioDeGym
     servicioDeGym.append(clientazo)
 
+  #en total hay 3 mesas en el restaurante
   for i in range(30):
-    if (i > 0 and i < 20):
+    #las primeras 20 son de capacidad 2
+    if (i >= 0 and i < 20):
       nuevaMesa = mesaComedor()
       nuevaMesa.idMesa = i
       nuevaMesa.capacidad = 2
-      nuevaMesa.ocupacion = 0
-      nuevaMesa.atendido = 0
-      nuevaMesa.tiempoDeEspera = 0
-      nuevaMesa.tiempoComida = 0
-      #USO DE VARIABLE GLOBAL mesasRestaurant
+      #VARIABLE GLOBAL mesasRestaurant
       mesasRestaurant.append(nuevaMesa)
+    #las ultimas 10 son de capacidad 4
     elif (i >= 20 and i <= 29):
       nuevaMesa = mesaComedor()
       nuevaMesa.idMesa = i
       nuevaMesa.capacidad = 4
-      nuevaMesa.ocupacion = 0
-      nuevaMesa.atendido = 0
-      nuevaMesa.tiempoDeEspera = 0
-      nuevaMesa.tiempoComida = 0
-      #USO DE VARIABLE GLOBAL mesasRestaurant
+      #VARIABLE GLOBAL mesasRestaurant
       mesasRestaurant.append(nuevaMesa)
 
   # Inicio de elementos de la simulacion del servicio del valet parking
@@ -1012,8 +1008,8 @@ def main():
       for reservacion in colaCheckIn:
         reservacion.tiempoDeEspera += 1
         
-      # global colaCheckIn
       colaCheckIn = [elem for elem in colaCheckIn if not demasiada_espera(elem)]
+
 
     #Última oportunidad de registrar a los clientes
     if (not colaCheckIn):
