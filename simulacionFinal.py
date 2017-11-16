@@ -63,18 +63,13 @@ class mesaComedor:
   tiempoDeEspera = 0
 
 # variables para simulación
-diasSimulados = 3
+diasSimulados = 365
 horasDeServicio = 12
-# totalDeHabitaciones = 10
-# habitacionesDisponibles = totalDeHabitaciones
-# habitacionesIndividualesTotales = 6
-# habitacionesDoblesTotales = 3
-# habitacionesSuiteTotales = 1
-totalDeHabitaciones = 6
+totalDeHabitaciones = 100
 habitacionesDisponibles = totalDeHabitaciones
-habitacionesIndividualesTotales = 3
-habitacionesDoblesTotales = 2
-habitacionesSuiteTotales = 1
+habitacionesIndividualesTotales = 60
+habitacionesDoblesTotales = 30
+habitacionesSuiteTotales = 10
 idReservacion = 0
 totalDeHuespedes = 0
 #lista de reservaciones
@@ -312,7 +307,7 @@ def simulacionCheckin (tamanioColaCheckIn, llegadasCheckIn, servicioMomentoCheck
     clientesServidosCheckIn -= 1
     it += 1
 
-  colaCheckIn = [elem for elem in colaCheckIn if not fue_atendido(elem)]
+  colaCheckIn = [colaCheckIn[i] for i in range(len(colaCheckIn)) if not fue_atendido(colaCheckIn[i])]
 
   return
 
@@ -358,11 +353,7 @@ def simulacionReservaciones (diaActual):
   global reservacionesFuturas
   global diasSimulados
 
-  # print("ENTRÉ A simulacionReservaciones")
-  # print("Dia actual = ", diaActual)
-
   reservacionesGeneradas = reservacionesDiarias()
-  # print("Reservaciones generadas = ", reservacionesGeneradas)
   tiempoEstancia = 0
   llegada = 0
   tipoDeCuarto = 0
@@ -370,30 +361,12 @@ def simulacionReservaciones (diaActual):
 
   for i in range(reservacionesGeneradas):
     tiempoEstancia = estanciaHotel2()
-    # print("Tiempo estancia = ",tiempoEstancia)
     #VARIABLE GLOBAL diasSimulados
     llegada = diaLlegadaHotel(diaActual,diasSimulados)
-    # print("Dia de llegada = ",llegada)
     tipoDeCuarto = evaluarTipoHabitacion(seleccionHabitacion())
-    # print("Tipo de cuarto = ",tipoDeCuarto)
     horaLlegada = horaLlegadaHotel()
-    # print("Hora de llegada = ",horaLlegada)
     numeroDePersonas = personasPorReservacion(tipoDeCuarto)
-    # print("Numero de personas = ",numeroDePersonas)
-    # print()
     nuevaReservacion = Reservacion(0,tiempoEstancia,tipoDeCuarto,horaLlegada,llegada,numeroDePersonas,0,1,0)
-    # print("--- Nueva Reservacion ---")
-    # print("Numero de reservacion = ",nuevaReservacion.numeroDeReservacion)
-    # print("Tiempo estancia = ",nuevaReservacion.diasDeHospedaje)
-    # print("Tipo de cuarto = ",nuevaReservacion.tipoDeCuarto)
-    # print("Hora de llegada = ",nuevaReservacion.horaLlegada)
-    # print("Dia de llegada = ",nuevaReservacion.diaLlegada)
-    # print("Numero de personas = ",nuevaReservacion.cantidadDePersonas)
-    # print("Atendido? = ",nuevaReservacion.atendido)
-    # print("Hizo reservacion? = ",nuevaReservacion.hizoReservacion)
-    # print("Tiempo de espera = ",nuevaReservacion.tiempoDeEspera)
-    # print()
-
     reservacionesFuturas.append(nuevaReservacion)
 
   return 
@@ -431,13 +404,15 @@ def generarPerdida(reservacion):
 
   if (reservacion.tiempoDeEspera >= 4):
     if(reservacion.tipoDeCuarto == 1):
-      gananciasPerdidasDelDiaPorCheckIn = gananciasPerdidasDelDiaPorCheckIn + reservacion.diasDeHospedaje * costoPorNocheIndividual
+      gananciasPerdidasDelDiaPorCheckIn += reservacion.diasDeHospedaje * costoPorNocheIndividual
     elif(reservacion.tipoDeCuarto == 2):
-      gananciasPerdidasDelDiaPorCheckIn = gananciasPerdidasDelDiaPorCheckIn + reservacion.diasDeHospedaje * costoPorNocheDoble
+      gananciasPerdidasDelDiaPorCheckIn += reservacion.diasDeHospedaje * costoPorNocheDoble
     elif(reservacion.tipoDeCuarto == 3):
-      gananciasPerdidasDelDiaPorCheckIn = gananciasPerdidasDelDiaPorCheckIn + reservacion.diasDeHospedaje * costoPorNocheSuite
+      gananciasPerdidasDelDiaPorCheckIn += reservacion.diasDeHospedaje * costoPorNocheSuite
 
     clientesQueAbandondanCheckIn += 1
+
+  # print("perdidas = ",gananciasPerdidasDelDiaPorCheckIn)
 
   return
 
@@ -478,7 +453,6 @@ def simulacionSpa(diaActual, horaActual):
 
   it = 0
   while (clientesServidosSpa > 0 and (not(not colaSpa)) and it != (len(colaSpa) - 1)):
-    # nuevoCliente = colaSpa[it]
     it2 = 0
     servido = 0
     while (it2 != (len(servicioDeSpa) - 1) and servido == 0):
@@ -495,12 +469,12 @@ def simulacionSpa(diaActual, horaActual):
     it += 1
     clientesServidosSpa += 1
 
-  colaSpa = [elem for elem in colaSpa if not recibido_en_spa(elem)]
+  colaSpa = [colaSpa[i] for i in range(len(colaSpa)) if not recibido_en_spa(colaSpa[i])]
 
   for i in range(len(colaSpa)):
     colaSpa[i].tiempoDeEspera += 1
 
-  colaSpa = [elem for elem in colaSpa if not espera_spa(elem)]
+  colaSpa = [colaSpa[i] for i in range(len(colaSpa)) if not espera_spa(colaSpa[i])]
 
   for i in range(len(servicioDeSpa)):
     servicioDeSpa[i].duracionTratamiento -= 1
@@ -558,29 +532,16 @@ def simulacionLavanderia(diaActual, horaActual):
   global idLavado
 
   llegadasLavanderia = llegadaLavanderia()
-  # print("Llegadas lavanderia = ",llegadasLavanderia)
   cantidadServicio = evaluarServicioLavanderia(servicioLavanderia())
-  # print("Cantidad servicio = ",cantidadServicio)
-  # print()
 
   for i in range(llegadasLavanderia):
     tipoPrenda = evaluarTipoPrenda(tipoDePrenda())
-    # print("tipo de prenda = ",tipoPrenda)
     tipoDeServicio = evaluarTipoDeServicio(lavadoOTinto())
-    # print("tipo de servicio = ",tipoDeServicio)
     nuevoCliente = prendaLavanderia()
     nuevoCliente.tipoDePrenda = tipoPrenda
     nuevoCliente.tipoDeServicio = tipoDeServicio
     nuevoCliente.idLavanderia = 0
-    # print("--- nuevo cliente ---")
-    # print("ID Lavanderia = ",nuevoCliente.idLavanderia)
-    # print("Tipo de prenda = ",nuevoCliente.tipoDePrenda)
-    # print("Tipo de servicio = ",nuevoCliente.tipoDeServicio)
-    # print("Atendido? = ",nuevoCliente.atendido)
     colaLavanderia.append(nuevoCliente)
-    # print()
-
-  # imprimirColaLavanderia()
 
   it = 0
   while (cantidadServicio > 0 and (not(not colaLavanderia)) and it != (len(colaLavanderia) - 1)):
@@ -608,7 +569,7 @@ def simulacionLavanderia(diaActual, horaActual):
     cantidadServicio -= 1
     it += 1
     
-  colaLavanderia = [elem for elem in colaLavanderia if not recibido_lavanderia(elem)]
+  colaLavanderia = [colaLavanderia[i] for i in range(len(colaLavanderia)) if not recibido_lavanderia(colaLavanderia[i])]
 
   return
 
@@ -649,7 +610,7 @@ def evaluarServicioLavanderia (valorExponencial):
   return servicio
 
 def llegadaGym():
-  return np.random.poisson(3)
+  return int(np.random.poisson(3))
 
 def tipoDeServicioGym():
   return np.random.exponential(3.5)
@@ -658,18 +619,15 @@ def servicioGym():
   return np.random.exponential(4)
 
 def simulacionGym(diaActual,horaActual):
+  global colaGym
+  global servicioDeGym
+
   llegadasGym = llegadaGym()
   servidoresGym = evaluarGym(servicioGym())
 
   for it in range(len(servicioDeGym)):
     if (servicioDeGym[it].duracionEntrenamiento <= 0):
-      clientazo = clienteEnGym()
-      clientazo.tipoDeEntrenamiento = 0
-      clientazo.duracionEntrenamiento = 0
-      clientazo.tiempoDeEspera = 0
-      clientazo.ejercitado = 0
-      #CHECAR DEEP COPY
-      servicioGym[it] = clientazo
+      servicioDeGym[it] = clienteEnGym()
 
   for i in range(llegadasGym):
     #TUPLA
@@ -683,33 +641,27 @@ def simulacionGym(diaActual,horaActual):
 
   i = 0
   clientesServidosGym = servidoresGym
-  cliente = colaGym[0]
-
   while (clientesServidosGym > 0 and (not(not colaGym)) and i != (len(colaGym) - 1)):
-    #CHECAR DEEP COPY
-    nuevoCliente = colaGym[i]
-    cliente2 = servicioDeGym[0]
     i2 = 0
     servido = 0
 
     while (i2 != (len(servicioDeGym) - 1) and servido == 0):
-      if (cliente2.duracionEntrenamiento == 0):
-        #CHECAR DEEP COPY
-        cliente2 = cliente
-        cliente.ejercitado = 1
+      if (servicioDeGym[0].duracionEntrenamiento == 0):
+        servicioDeGym[0] = colaGym[i]
+        colaGym[i].ejercitado = 1
         servido = 1
       else:
         i2 += 1
     i += 1
     clientesServidosGym += 1
 
-  colaGym = [elem for elem in colaGym if not recibido_en_gym(elem)]
+  colaGym = [colaGym[i] for i in range(len(colaGym)) if not recibido_en_gym(colaGym[i])]
 
-  for cliente in colaGym:
-    cliente.tiempoDeEspera += 1
+  for i in range(len(colaGym)):
+    colaGym[i].tiempoDeEspera += 1
 
-  for cliente in servicioDeGym:
-    cliente.duracionEntrenamiento -= 1
+  for i in range(len(servicioDeGym)):
+    servicioDeGym[i].duracionEntrenamiento -= 1
 
   return
 
@@ -835,13 +787,13 @@ def simulacionRestaurante(diaActual,horaActual):
       i+= 1
 
     #VARIABLE GLOBAL colaRestaurant
-    colaRestaurant = [elem for elem in colaRestaurant if not recibido_en_restaurante(elem)]
+    colaRestaurant = [colaRestaurant[i] for i in range(len(colaRestaurant)) if not recibido_en_restaurante(colaRestaurant[i])]
 
     for i in range(len(colaRestaurant)):
       colaRestaurant[i].tiempoDeEspera += 1
 
     #VARIABLE GLOBAL colaRestaurant
-    colaRestaurant = [elem for elem in colaRestaurant if not espera_restaurante(elem)]
+    colaRestaurant = [colaRestaurant[i] for i in range(len(colaRestaurant)) if not espera_restaurante(colaRestaurant[i])]
 
     for i in range(len(mesasRestaurant)):
       mesasRestaurant[i].tiempoComida -= 1
@@ -872,17 +824,14 @@ def validarEstanciaMesa (variableExponencial):
 
   return estanciaMesa
 
-#CHECAR ESTO PORQUE SE PASA UN PARAMETRO CONST
 def generarPerdidaComida(mesaComedor):
   #DECLARACION DE VARIABLES GLOBALES PARA SU USO
   global personasEnColaYRestaurante
   global gananciasPerdidasDiaRestaurante
+  global costoComidaPersona
 
   if (mesaComedor.tiempoDeEspera >= 2):
-    # global personasEnColaYRestaurante
     personasEnColaYRestaurante -= mesaComedor.ocupacion
-
-    # global gananciasPerdidasDiaRestaurante
     gananciasPerdidasDiaRestaurante += mesaComedor.ocupacion * costoComidaPersona
 
   return
@@ -896,110 +845,6 @@ def servicioValet():
 def servicioCheckIn():
   return np.random.exponential(4.0)
 
-# DEBUG
-# def imprimirHabitaciones():
-#   global habitaciones
-
-#   for habitacion in habitaciones:
-#     print("Numero de cuarto = ",habitacion.numeroDeCuarto)
-#     print("Tipo de cuarto = ",habitacion.tipoDeCuarto)
-#     print("Apartado? = ",habitacion.apartado)
-#     print("--Reservacion--")
-#     print("Dias de hospedaje = ",habitacion.Ocupante.diasDeHospedaje)
-#     print("Tipo de cuarto = ",habitacion.Ocupante.tipoDeCuarto)
-#     print("Dia llegada = ",habitacion.Ocupante.diaLlegada)
-#     print("Hora Llegada = ",habitacion.Ocupante.horaLlegada)
-#     print("Numero de reservacion = ",habitacion.Ocupante.numeroDeReservacion)
-#     print("Cantidad de personas = ",habitacion.Ocupante.cantidadDePersonas)
-#     print("Atendido? = ", habitacion.Ocupante.atendido)
-#     print("Hizo reservacion? = ",habitacion.Ocupante.hizoReservacion)
-#     print("Tiempo de espera = ",habitacion.Ocupante.tiempoDeEspera) 
-#     print()
-
-#   return
-
-# DEBUG
-# def imprimirServicioDeSpa():
-#   global servicioDeSpa
-
-#   for clienteSpa in servicioDeSpa:
-#     print("ID servicio = ",clienteSpa.idServicio)
-#     print("Tipo de tratamiento = ",clienteSpa.tipoDeTratamiento)
-#     print("Duracion de tratamiento = ",clienteSpa.duracionTratamiento)
-#     print("Tiempo de espera = ",clienteSpa.tiempoDeEspera)
-#     print("Atendido? = ",clienteSpa.atendido)
-#     print()
-
-#   return
-
-# DEBUG
-# def imprimirServicioDeGym():
-#   global servicioDeGym
-
-#   for clienteGym in servicioDeGym:
-#     print("Tipo de entrenamiento = ",clienteGym.tipoDeEntrenamiento)
-#     print("Duracion de entrenamiento = ",clienteGym.duracionEntrenamiento)
-#     print("Tiempo de espera = ",clienteGym.tiempoDeEspera)
-#     print("Ejercitado? = ",clienteGym.ejercitado)
-#     print()
-
-#   return
-
-# class mesaComedor:
-#   idMesa = 0
-#   capacidad = 0
-#   ocupacion = 0
-#   tiempoComida = 0
-#   atendido = 0
-#   tiempoDeEspera = 0
-
-# DEBUG
-# def imprimirMesasRestaurante():
-#   global mesasRestaurant
-
-#   for mesa in mesasRestaurant:
-#     print("ID mesa = ",mesa.idMesa)
-#     print("Capacidad = ",mesa.capacidad)
-#     print("Ocupacion = ",mesa.ocupacion)
-#     print("Tiempo comida = ",mesa.tiempoComida)
-#     print("Atendido? = ",mesa.atendido)
-#     print("Tiempo de espera = ",mesa.tiempoDeEspera)
-#     print()
-
-#   return
-
-# DEBUG
-# def imprimirReservacionesFuturas():
-#   global reservacionesFuturas
-
-#   for reservacion in reservacionesFuturas:
-#     print("Numero de reservacion = ",reservacion.numeroDeReservacion)
-#     print("Tiempo estancia = ",reservacion.diasDeHospedaje)
-#     print("Tipo de cuarto = ",reservacion.tipoDeCuarto)
-#     print("Hora de llegada = ",reservacion.horaLlegada)
-#     print("Dia de llegada = ",reservacion.diaLlegada)
-#     print("Numero de personas = ",reservacion.cantidadDePersonas)
-#     print("Atendido? = ",reservacion.atendido)
-#     print("Hizo reservacion? = ",reservacion.hizoReservacion)
-#     print("Tiempo de espera = ",reservacion.tiempoDeEspera)
-#     print()
-
-#   return
-
-# DEBUG
-def imprimirColaLavanderia():
-  global colaLavanderia
-
-  print("len de colaLavanderia = ",len(colaLavanderia))
-
-  for prenda in colaLavanderia:
-    print("ID Lavanderia = ",prenda.idLavanderia)
-    print("Tipo de prenda = ",prenda.tipoDePrenda)
-    print("Tipo de servicio = ",prenda.tipoDeServicio)
-    print("Atendido? = ",prenda.atendido)
-    print()
-
-  return
 
 def main():
   #DECLARACION DE LAS VARIABLES GLOBALES PARA USARLAS
@@ -1026,6 +871,7 @@ def main():
   global servicioDeGym
   global mesasRestaurant
   global diasSimulados
+  global idReservacion
 
   #For para llenar la lista de habitaciones y generar la cantidad de habitaciones señaladas en la variables
   for i in range(totalDeHabitaciones):
@@ -1046,18 +892,12 @@ def main():
       nuevoCuarto = Cuarto(i+1,3,0,nuevoReservacion)
       habitaciones.append(nuevoCuarto)
 
-  # DEBUG
-  # imprimirHabitaciones()
-
   #se crea un cliente en spa genérico
   ejemplo = clienteEnSpa()
   #se llena con 5 clientes el spa
   for i in range(5):
     #VARIABLE GLOBAL servicioDeSpa
     servicioDeSpa.append(ejemplo)
-
-  # DEBUG
-  # imprimirServicioDeSpa()
 
   #se crea un cliente en gym genérico
   clientazo = clienteEnGym()
@@ -1066,10 +906,7 @@ def main():
     #VARIABLE GLOBAL servicioDeGym
     servicioDeGym.append(clientazo)
 
-  # DEBUG
-  # imprimirServicioDeGym()
-
-  #en total hay 30 mesas en el restaurante
+  #hay 30 mesas en el restaurante
   for i in range(30):
     #las primeras 20 son de capacidad 2
     if (i >= 0 and i < 20):
@@ -1085,9 +922,6 @@ def main():
       nuevaMesa.capacidad = 4
       #VARIABLE GLOBAL mesasRestaurant
       mesasRestaurant.append(nuevaMesa)
-
-  # DEBUG
-  # imprimirMesasRestaurante()
 
   # Inicio de elementos de la simulacion del servicio del valet parking
   llegadaMomentoValet = 0
@@ -1108,9 +942,6 @@ def main():
     print("Día: ",j+1)
     #Funcion para generar un numero aleatorio de reservaciones futuras diarias
     simulacionReservaciones(j)
-
-  # DEBUG
-  # imprimirReservacionesFuturas()
 
     #For para simular cada hora
     for i in range(24):
@@ -1137,11 +968,11 @@ def main():
       if (i >= 12):
         if (i <= 18):
           simulacionSpa(j,i)
+          simulacionGym(j,i)
         print("Hora: ", i, ":00")
 
         #Se consigue el numero de reservaciones que llegan ese momento para restarse después al servicio ya que tienen prioridad
         reservacionesAsignadas = asignarReservaciones(j,i)
-
 
         #Inicio Servicio de Valet
         llegadaMomentoValet = llegadaValet() # Variable aleatoria para generar clientes llegan al valet
@@ -1163,7 +994,7 @@ def main():
       for i in range(len(colaCheckIn)):
         colaCheckIn[i].tiempoDeEspera += 1
         
-      colaCheckIn = [elem for elem in colaCheckIn if not demasiada_espera(elem)]
+      colaCheckIn = [colaCheckIn[i] for i in range(len(colaCheckIn)) if not demasiada_espera(colaCheckIn[i])]
 
     #Última oportunidad de registrar a los clientes
     if (not(not colaCheckIn)):
@@ -1233,7 +1064,7 @@ def main():
           if (saved == 0):
             print("No hay suites")
 
-    colaCheckIn = [elem for elem in colaCheckIn if not fue_atendido(elem)]
+    colaCheckIn = [colaCheckIn[i] for i in range(len(colaCheckIn)) if not fue_atendido(colaCheckIn[i])]
 
     #Se vacía la cola al finalizar el día porque no se pueden quedar ahí nada más los clientes
     colaCheckIn = []
@@ -1243,28 +1074,28 @@ def main():
       habitaciones[it].Ocupante.diasDeHospedaje -= 1
 
     #Escritura en pantalla
-    print("Finanzas del Día: ",j)
+    print("Finanzas del Día: ",j+1)
     print("Ganancias del Día Por CheckIn: ",gananciasDelDiaPorCheckIn)
     gananciasTotalesPorCheckIn += gananciasDelDiaPorCheckIn
     gananciasDelDiaPorCheckIn = 0
-    print("Ganancias Perdidas del Día Por CheckIn: ",gananciasPerdidasDelDiaPorCheckIn)
-    gananciasPerdidasTotalesPorCheckIn += gananciasPerdidasDelDiaPorCheckIn
-    gananciasPerdidasDelDiaPorCheckIn = 0
+    # print("Ganancias Perdidas del Día Por CheckIn: ",gananciasPerdidasDelDiaPorCheckIn)
+    # gananciasPerdidasTotalesPorCheckIn += gananciasPerdidasDelDiaPorCheckIn
+    # gananciasPerdidasDelDiaPorCheckIn = 0
     print("Ganancias del Día por Spa: ", gananciasDelDiaSpa)
     gananciasTotalesSpa += gananciasDelDiaSpa
     gananciasDelDiaSpa = 0
-    print("Ganancias Perdidas del Día por Spa: ",gananciasPerdidasDelDiaPorSpa)
-    gananciasPerdidasTotalesSpa += gananciasPerdidasDelDiaPorSpa
-    gananciasPerdidasDelDiaPorSpa = 0
+    # print("Ganancias Perdidas del Día por Spa: ",gananciasPerdidasDelDiaPorSpa)
+    # gananciasPerdidasTotalesSpa += gananciasPerdidasDelDiaPorSpa
+    # gananciasPerdidasDelDiaPorSpa = 0
     print("Ganancias del Día por Lavanderia: ",gananciasDelDiaLavanderia)
     gananciasTotalesLavanderia += gananciasDelDiaLavanderia
     gananciasDelDiaLavanderia = 0
     print("Ganancias del Día por Restaurante: ",gananciasDiaRestaurante)
     gananciasTotalesRestaurante += gananciasDiaRestaurante
     gananciasDiaRestaurante = 0
-    print("Ganancias Perdidas del Día por Restaurante: ",gananciasPerdidasDiaRestaurante)
-    gananciasPerdidasTotalesRestaurante += gananciasPerdidasDiaRestaurante
-    gananciasPerdidasDiaRestaurante = 0
+    # print("Ganancias Perdidas del Día por Restaurante: ",gananciasPerdidasDiaRestaurante)
+    # gananciasPerdidasTotalesRestaurante += gananciasPerdidasDiaRestaurante
+    # gananciasPerdidasDiaRestaurante = 0
     print("-----------------------------------------------------------------------------")
 
   gananciasTotales = gananciasTotalesPorCheckIn + gananciasTotalesSpa + gananciasTotalesLavanderia + gananciasTotalesRestaurante
@@ -1273,16 +1104,16 @@ def main():
   #Escritura en pantalla
   print("-----------------------------------------------------------------------------")
   print("Ganancias Totales por CheckIn: ",gananciasTotalesPorCheckIn)
-  print("Ganancias Perdidas Totales por CheckIn: ",gananciasPerdidasTotalesPorCheckIn)
+  # print("Ganancias Perdidas Totales por CheckIn: ",gananciasPerdidasTotalesPorCheckIn)
   print("Ganancias Totales por Spa: ",gananciasTotalesSpa)
-  print("Ganancias Perdidas Totales por Spa: ",gananciasPerdidasTotalesSpa)
+  # print("Ganancias Perdidas Totales por Spa: ",gananciasPerdidasTotalesSpa)
   print("Ganancias Totales por Lavanderia: ",gananciasTotalesLavanderia)
   print("Ganancias Totales por Restaurante: ",gananciasTotalesRestaurante)
-  print("Ganancias Perdidas Totales por Restaurante: ",gananciasPerdidasTotalesRestaurante)
+  # print("Ganancias Perdidas Totales por Restaurante: ",gananciasPerdidasTotalesRestaurante)
   print("-----------------------------------------------------------------------------")
   print("Ganancias Totales: ",gananciasTotales)
-  print("Ganancias Perdidas Totales: ",gananciasPerdidasTotales)
-  print(totalDeHuespedes)
+  # print("Ganancias Perdidas Totales: ",gananciasPerdidasTotales)
+  print("Total de huespedes: ", totalDeHuespedes)
 #FIN DEL MAIN
 
 if __name__ == "__main__":
