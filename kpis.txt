@@ -1,0 +1,7 @@
+total de clientes en el hotel al finalizar el dia
+total de habitaciones ocupadas por dia
+ganancias por proceso (por dia)
+ganancias por proceso totales
+personas esperando hacer check-in
+personas que se van por demasiado tiempo de espera
+

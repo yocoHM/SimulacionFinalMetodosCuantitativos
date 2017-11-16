@@ -63,7 +63,7 @@ class mesaComedor:
   tiempoDeEspera = 0
 
 # variables para simulación SE PUEDEN CAMBIAR
-diasSimulados = 365
+diasSimulados = 10
 horasDeServicio = 12
 totalDeHabitaciones = 100
 habitacionesDisponibles = totalDeHabitaciones
