@@ -130,6 +130,7 @@ clientesAtendidosCheckIn = 0
 habitacionesIndividualesOcupadas = 0
 habitacionesDoblesOcupadas = 0
 habitacionesSuitesOcupadas = 0
+totalClientesVisitaron = 0
 
 #funcion para sacar a las personas cuando termina su estancia en el hotel
 def no_mas_dias (reservacion):
@@ -229,15 +230,11 @@ def simulacionCheckin (tamanioColaCheckIn, llegadasCheckIn, servicioMomentoCheck
   global habitacionesDoblesOcupadas
   global habitacionesSuitesOcupadas
 
-  clientesNoServidosCheckIn = 0
-  clientesServidosCheckIn = 0
-  clientesNoServidosCheckIn = llegadasCheckIn - servicioMomentoCheckIn
-  clientesServidosCheckIn = servicioMomentoCheckIn - llegadasCheckIn
+  # clientesAtendidos = 0
 
-  if (clientesServidosCheckIn < 0):
-    clientesServidosCheckIn = servicioMomentoCheckIn
-  else:
-    clientesServidosCheckIn = llegadasCheckIn
+  # print("SIMULACION CHECKIN")
+  # print("Clientes que llegaron sin reservacion = ", llegadasCheckIn)
+  # print("servicio momento check in = ",servicioMomentoCheckIn)
 
   llegadasCheckIn2 = llegadasCheckIn
 
@@ -249,8 +246,18 @@ def simulacionCheckin (tamanioColaCheckIn, llegadasCheckIn, servicioMomentoCheck
     colaCheckIn.append(nuevoReservacion)
     llegadasCheckIn2 -= 1
 
+  clientesServidosCheckIn = 0
+  clientesServidosCheckIn = servicioMomentoCheckIn - len(colaCheckIn)
+
+  if (clientesServidosCheckIn < 0):
+    clientesServidosCheckIn = servicioMomentoCheckIn
+  else:
+    clientesServidosCheckIn = len(colaCheckIn)
+
+  # print("Clientes que se van a poder atender = ",clientesServidosCheckIn)
+
   it = 0
-  while (habitacionesDisponibles > 0 and clientesServidosCheckIn > 0 and (not(not colaCheckIn)) and it != (len(colaCheckIn) - 1)):
+  while (habitacionesDisponibles > 0 and clientesServidosCheckIn > 0 and (not(not colaCheckIn)) and it != (len(colaCheckIn))):
     if (colaCheckIn[it].tipoDeCuarto == 1):
       i = 0
       #BOOLEANO
@@ -263,6 +270,8 @@ def simulacionCheckin (tamanioColaCheckIn, llegadasCheckIn, servicioMomentoCheck
           colaCheckIn[it].numeroDeReservacion = idReservacion
           colaCheckIn[it].atendido = 1
           clientesAtendidosCheckIn += 1
+          # clientesAtendidos += 1
+          # print("Se atendio al cliente ",it, " de la cola check in")
           habitaciones[i].Ocupante = colaCheckIn[it]
           totalDeHuespedes += colaCheckIn[it].cantidadDePersonas
           habitacionesDisponibles -= 1
@@ -273,7 +282,7 @@ def simulacionCheckin (tamanioColaCheckIn, llegadasCheckIn, servicioMomentoCheck
         else:
           i += 1
       # if (saved == 0):
-        # print("No hay lugar habitaciones individuales")
+      #   print("No hay lugar habitaciones individuales. No se pudo atender al cliente")
 
     elif (colaCheckIn[it].tipoDeCuarto == 2):
       i = habitacionesIndividualesTotales
@@ -285,6 +294,8 @@ def simulacionCheckin (tamanioColaCheckIn, llegadasCheckIn, servicioMomentoCheck
           colaCheckIn[it].numeroDeReservacion = idReservacion
           colaCheckIn[it].atendido = 1
           clientesAtendidosCheckIn += 1
+          # clientesAtendidos += 1
+          # print("Se atendio al cliente ",it, " de la cola check in")
           habitaciones[i].Ocupante = colaCheckIn[it]
           totalDeHuespedes += colaCheckIn[it].cantidadDePersonas
           habitacionesDisponibles -= 1
@@ -295,7 +306,7 @@ def simulacionCheckin (tamanioColaCheckIn, llegadasCheckIn, servicioMomentoCheck
         else:
           i += 1
       # if (saved == 0):
-        # print("No hay habitaciones dobles")
+      #   print("No hay habitaciones dobles. No se pudo atender al cliente")
 
     elif (colaCheckIn[it].tipoDeCuarto == 3):
       #SE USAN VARIABLES GLOBALES
@@ -308,6 +319,8 @@ def simulacionCheckin (tamanioColaCheckIn, llegadasCheckIn, servicioMomentoCheck
           colaCheckIn[it].numeroDeReservacion = idReservacion
           colaCheckIn[it].atendido = 1
           clientesAtendidosCheckIn += 1
+          # clientesAtendidos += 1
+          # print("Se atendio al cliente ",it, " de la cola check in")
           habitaciones[i].Ocupante = colaCheckIn[it]
           totalDeHuespedes += colaCheckIn[it].cantidadDePersonas
           habitacionesDisponibles -= 1
@@ -317,11 +330,14 @@ def simulacionCheckin (tamanioColaCheckIn, llegadasCheckIn, servicioMomentoCheck
         else:
           i += 1
       # if (saved == 0):
-        # print("No hay lugar suites")
+      #   print("No hay lugar suites. No se pudo atender al cliente")
 
     clientesServidosCheckIn -= 1
     it += 1
 
+  # print("Clientes atendidos = ",clientesAtendidos)
+  # print("Clientes atendidos check in = ",clientesAtendidosCheckIn)
+  # print()
   colaCheckIn = [colaCheckIn[i] for i in range(len(colaCheckIn)) if not fue_atendido(colaCheckIn[i])]
 
   return
@@ -396,7 +412,11 @@ def asignarReservaciones (diaActual,horaActual):
     if (reservacionesFuturas[i].diaLlegada == diaActual and reservacionesFuturas[i].horaLlegada == horaActual):
       #VARIABLE GLOBAL colaCheckIn
       colaCheckIn.insert(0,reservacionesFuturas[i])
-    reservacionesAsignadas += 1
+      reservacionesAsignadas += 1
+
+  # print("ASIGNAR RESERVACIONES")
+  # print("clientes con reservacion = ",reservacionesAsignadas)
+  # print()
 
   return reservacionesAsignadas
 
@@ -891,6 +911,7 @@ def main():
   global habitacionesIndividualesOcupadas
   global habitacionesDoblesOcupadas
   global habitacionesSuitesOcupadas
+  global totalClientesVisitaron
 
   #For para llenar la lista de habitaciones y generar la cantidad de habitaciones señaladas en la variables
   for i in range(totalDeHabitaciones):
@@ -983,6 +1004,12 @@ def main():
             habitaciones[it].Ocupante = nuevoReservacion
             clientesCheckout += 1
             habitacionesDisponibles += 1
+            
+        print("*** Inicio del día ***")
+        print("Número de huéspedes que hicieron checkout = ",clientesCheckout)
+        print("Habitaciones disponibles = ",habitacionesDisponibles)
+        print("*** Inicio del día ***")
+        print()
 
       if (i >= 12):
         if (i <= 18):
@@ -992,6 +1019,8 @@ def main():
 
         #Se consigue el numero de reservaciones que llegan ese momento para restarse después al servicio ya que tienen prioridad
         reservacionesAsignadas = asignarReservaciones(j,i)
+        # print("tamaño cola check in despues de reservaciones asignadas = ",len(colaCheckIn))
+        # print("reservaciones asignadas = ",reservacionesAsignadas)
 
         #Inicio Servicio de Valet
         llegadaMomentoValet = llegadaValet() # Variable aleatoria para generar clientes llegan al valet
@@ -1002,8 +1031,13 @@ def main():
         #Clientes que entran al hotel
         clientesEntrantes = serviciosValetcolaValet[0]
 
-        #Se restan las reservaciones a los clientes entrantes par adarles prioridad a estso y después atender a los que no tienen reservación
-        clientesEntrantes = abs(clientesEntrantes - reservacionesAsignadas)
+        totalClientesVisitaron += reservacionesAsignadas + clientesEntrantes
+
+        # #Se restan las reservaciones a los clientes entrantes par adarles prioridad a estso y después atender a los que no tienen reservación
+        # clientesEntrantes = abs(clientesEntrantes - reservacionesAsignadas)
+        # print("clientes entrantes (resta) = ",clientesEntrantes)
+
+        # print()
 
         #Inicio Servicio de CheckIn
         servicioMomentoCheckIn = evaluarServicioCheckIn(servicioCheckIn()) #Variable aleatoria para generar cuantos servidores hay en el checkin
@@ -1014,6 +1048,7 @@ def main():
         colaCheckIn[i].tiempoDeEspera += 1
         
       colaCheckIn = [colaCheckIn[i] for i in range(len(colaCheckIn)) if not demasiada_espera(colaCheckIn[i])]
+      # print("Cola check in después de demasiada espera = ",len(colaCheckIn))
 
     #Última oportunidad de registrar a los clientes
     if (not(not colaCheckIn)):
@@ -1089,17 +1124,22 @@ def main():
           # if (saved == 0):
             # print("No hay suites")
 
-    print("*** Resultados ***")
-    print("Total de huespedes atendidos en Check In = ",clientesAtendidosCheckIn)
+    print("*** Fin del día ***")
+    print("Total de clientes que intentaron reservar = ",totalClientesVisitaron)
+    print("Total de reservaciones exitosas = ",clientesAtendidosCheckIn)
+    print(f"Porcentaje de reservaciones exitosas = {(clientesAtendidosCheckIn/totalClientesVisitaron)*100:.2f} %")
     print("Total de habitaciones individuales ocupadas = ",habitacionesIndividualesOcupadas)
     print("Total de habitaciones dobles ocupadas = ",habitacionesDoblesOcupadas)
     print("Total de habitaciones suites ocupadas = ",habitacionesSuitesOcupadas)
-    print("Total de huespedes al finalizar el día = ",totalDeHuespedes)
-    print("Total de habitaciones ocupadas al finalizar el día = ",(totalDeHabitaciones - habitacionesDisponibles))
+    print("Total de habitaciones ocupadas = ",(totalDeHabitaciones - habitacionesDisponibles))
+    print("Total de habitaciones disponibles = ",habitacionesDisponibles)
+    print("Total de huespedes en el hotel = ",totalDeHuespedes)
+    print("Promedio de huespedes por habitación = ",totalDeHuespedes/totalDeHabitaciones)
+    print("*** Fin del día ***")
 
     colaCheckIn = [colaCheckIn[i] for i in range(len(colaCheckIn)) if not fue_atendido(colaCheckIn[i])]
 
-    print("Total de huespedes que no pudieron reservar habitacion = ",len(colaCheckIn))
+    # print("Total de huespedes que no pudieron reservar habitacion = ",len(colaCheckIn))
 
     #Se vacía la cola al finalizar el día porque no se pueden quedar ahí nada más los clientes
     colaCheckIn = []
@@ -1107,6 +1147,7 @@ def main():
     habitacionesIndividualesOcupadas = 0
     habitacionesDoblesOcupadas = 0
     habitacionesSuitesOcupadas = 0
+    totalClientesVisitaron = 0
 
     #Se le resta la noche a los clientes al terminar el día para que después se revise en el checkout
     for it in range(len(habitaciones)):
@@ -1126,9 +1167,11 @@ def main():
     print("Ganancias del Día por Restaurante: $",gananciasDiaRestaurante)
     gananciasTotalesRestaurante += gananciasDiaRestaurante
     gananciasDiaRestaurante = 0
-    print("----------------------------------- Finalizó el día ------------------------------------------")
+    print("*** Finanzas ***")
+    print("-----------------------------------------------------------------------------")
+    print()
 
-  print()
+  # print()
   gananciasTotales = gananciasTotalesPorCheckIn + gananciasTotalesSpa + gananciasTotalesLavanderia + gananciasTotalesRestaurante
   gananciasPerdidasTotales = gananciasPerdidasTotalesPorCheckIn + gananciasPerdidasTotalesSpa + gananciasPerdidasTotalesRestaurante
 
