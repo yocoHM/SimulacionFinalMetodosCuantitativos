@@ -131,6 +131,12 @@ habitacionesIndividualesOcupadas = 0
 habitacionesDoblesOcupadas = 0
 habitacionesSuitesOcupadas = 0
 totalClientesVisitaron = 0
+totalOcupacionHotel = 0
+totalDisponibilidadHotel = 0
+totalVisitantes = 0
+totalHabitacionesIndividualesOcupadas = 0
+totalHabitacionesDoblesOcupadas = 0
+totalHabitacionesSuitesOcupadas = 0
 
 #funcion para sacar a las personas cuando termina su estancia en el hotel
 def no_mas_dias (reservacion):
@@ -230,12 +236,6 @@ def simulacionCheckin (tamanioColaCheckIn, llegadasCheckIn, servicioMomentoCheck
   global habitacionesDoblesOcupadas
   global habitacionesSuitesOcupadas
 
-  # clientesAtendidos = 0
-
-  # print("SIMULACION CHECKIN")
-  # print("Clientes que llegaron sin reservacion = ", llegadasCheckIn)
-  # print("servicio momento check in = ",servicioMomentoCheckIn)
-
   llegadasCheckIn2 = llegadasCheckIn
 
   while(llegadasCheckIn2 > 0):
@@ -254,8 +254,6 @@ def simulacionCheckin (tamanioColaCheckIn, llegadasCheckIn, servicioMomentoCheck
   else:
     clientesServidosCheckIn = len(colaCheckIn)
 
-  # print("Clientes que se van a poder atender = ",clientesServidosCheckIn)
-
   it = 0
   while (habitacionesDisponibles > 0 and clientesServidosCheckIn > 0 and (not(not colaCheckIn)) and it != (len(colaCheckIn))):
     if (colaCheckIn[it].tipoDeCuarto == 1):
@@ -270,8 +268,6 @@ def simulacionCheckin (tamanioColaCheckIn, llegadasCheckIn, servicioMomentoCheck
           colaCheckIn[it].numeroDeReservacion = idReservacion
           colaCheckIn[it].atendido = 1
           clientesAtendidosCheckIn += 1
-          # clientesAtendidos += 1
-          # print("Se atendio al cliente ",it, " de la cola check in")
           habitaciones[i].Ocupante = colaCheckIn[it]
           totalDeHuespedes += colaCheckIn[it].cantidadDePersonas
           habitacionesDisponibles -= 1
@@ -294,8 +290,6 @@ def simulacionCheckin (tamanioColaCheckIn, llegadasCheckIn, servicioMomentoCheck
           colaCheckIn[it].numeroDeReservacion = idReservacion
           colaCheckIn[it].atendido = 1
           clientesAtendidosCheckIn += 1
-          # clientesAtendidos += 1
-          # print("Se atendio al cliente ",it, " de la cola check in")
           habitaciones[i].Ocupante = colaCheckIn[it]
           totalDeHuespedes += colaCheckIn[it].cantidadDePersonas
           habitacionesDisponibles -= 1
@@ -319,8 +313,6 @@ def simulacionCheckin (tamanioColaCheckIn, llegadasCheckIn, servicioMomentoCheck
           colaCheckIn[it].numeroDeReservacion = idReservacion
           colaCheckIn[it].atendido = 1
           clientesAtendidosCheckIn += 1
-          # clientesAtendidos += 1
-          # print("Se atendio al cliente ",it, " de la cola check in")
           habitaciones[i].Ocupante = colaCheckIn[it]
           totalDeHuespedes += colaCheckIn[it].cantidadDePersonas
           habitacionesDisponibles -= 1
@@ -335,9 +327,6 @@ def simulacionCheckin (tamanioColaCheckIn, llegadasCheckIn, servicioMomentoCheck
     clientesServidosCheckIn -= 1
     it += 1
 
-  # print("Clientes atendidos = ",clientesAtendidos)
-  # print("Clientes atendidos check in = ",clientesAtendidosCheckIn)
-  # print()
   colaCheckIn = [colaCheckIn[i] for i in range(len(colaCheckIn)) if not fue_atendido(colaCheckIn[i])]
 
   return
@@ -414,10 +403,6 @@ def asignarReservaciones (diaActual,horaActual):
       colaCheckIn.insert(0,reservacionesFuturas[i])
       reservacionesAsignadas += 1
 
-  # print("ASIGNAR RESERVACIONES")
-  # print("clientes con reservacion = ",reservacionesAsignadas)
-  # print()
-
   return reservacionesAsignadas
 
 def personasPorReservacion(tipoDeCuarto):
@@ -446,8 +431,6 @@ def generarPerdida(reservacion):
       gananciasPerdidasDelDiaPorCheckIn += reservacion.diasDeHospedaje * costoPorNocheSuite
 
     clientesQueAbandondanCheckIn += 1
-
-  # print("perdidas = ",gananciasPerdidasDelDiaPorCheckIn)
 
   return
 
@@ -912,6 +895,12 @@ def main():
   global habitacionesDoblesOcupadas
   global habitacionesSuitesOcupadas
   global totalClientesVisitaron
+  global totalOcupacionHotel
+  global totalDisponibilidadHotel
+  global totalVisitantes
+  global totalHabitacionesIndividualesOcupadas
+  global totalHabitacionesDoblesOcupadas
+  global totalHabitacionesSuitesOcupadas
 
   #For para llenar la lista de habitaciones y generar la cantidad de habitaciones señaladas en la variables
   for i in range(totalDeHabitaciones):
@@ -1124,6 +1113,13 @@ def main():
           # if (saved == 0):
             # print("No hay suites")
 
+    totalOcupacionHotel += totalDeHabitaciones - habitacionesDisponibles
+    totalDisponibilidadHotel += habitacionesDisponibles
+    totalVisitantes += totalClientesVisitaron
+    totalHabitacionesIndividualesOcupadas += habitacionesIndividualesOcupadas
+    totalHabitacionesDoblesOcupadas += habitacionesDoblesOcupadas
+    totalHabitacionesSuitesOcupadas += habitacionesSuitesOcupadas
+
     print("*** Fin del día ***")
     print("Total de clientes que intentaron reservar = ",totalClientesVisitaron)
     print("Total de reservaciones exitosas = ",clientesAtendidosCheckIn)
@@ -1171,7 +1167,6 @@ def main():
     print("-----------------------------------------------------------------------------")
     print()
 
-  # print()
   gananciasTotales = gananciasTotalesPorCheckIn + gananciasTotalesSpa + gananciasTotalesLavanderia + gananciasTotalesRestaurante
   gananciasPerdidasTotales = gananciasPerdidasTotalesPorCheckIn + gananciasPerdidasTotalesSpa + gananciasPerdidasTotalesRestaurante
 
@@ -1191,6 +1186,12 @@ def main():
   print("----------------------------------- Resultados totales ------------------------------------------")
   print("Ganancias Totales: $",gananciasTotales)
   print("Ganancias Totales promedio por día: $",(gananciasTotales/diasSimulados))
+  print("Promedio de personas que intentan una reservación: ",totalVisitantes/diasSimulados)
+  print("Promedio de ocupación de habitaciones: ",totalOcupacionHotel/diasSimulados)
+  print("Promedio de disponibilidad de habitaciones: ",totalDisponibilidadHotel/diasSimulados)
+  print("Promedio de habitaciones individuales ocupadas: ",totalHabitacionesIndividualesOcupadas/diasSimulados)
+  print("Promedio de habitaciones dobles ocupadas: ",totalHabitacionesDoblesOcupadas/diasSimulados)
+  print("Promedio de habitaciones suites ocupadas: ",totalHabitacionesSuitesOcupadas/diasSimulados)
   print("----------------------------------- Resultados totales ------------------------------------------")
 #FIN DEL MAIN
 

@@ -67,9 +67,9 @@ diasSimulados = 10
 horasDeServicio = 12
 totalDeHabitaciones = 100
 habitacionesDisponibles = totalDeHabitaciones
-habitacionesIndividualesTotales = 60
-habitacionesDoblesTotales = 30
-habitacionesSuiteTotales = 10
+habitacionesIndividualesTotales = 33
+habitacionesDoblesTotales = 33
+habitacionesSuiteTotales = 34
 idReservacion = 0
 totalDeHuespedes = 0
 #lista de reservaciones
